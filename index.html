@@ -1038,6 +1038,17 @@
         document.getElementById('hervatten-knop').style.display = 'none';
         loopTimer();
       }
+
+      // ============================================================
+      // FEATURE: STOP VERWERKEN — BEIDE TEAMS
+      // Zodra gestopt:true in Firebase staat, triggert dit bij
+      // BEIDE teams de eindstand popup. Zo gaan beide teams
+      // tegelijk uit het spel, ook het team dat akkoord gaf.
+      // ============================================================
+      if (t.gestopt && !bingoAlGemeld) {
+        clearInterval(timerInterval);
+        toonEinde('tijd', null);
+      }
     });
 
     db.ref('spellen/' + groepsCode + '/reacties').on('value', function(snap) {
@@ -1167,13 +1178,12 @@
       });
 
     } else if (type === 'stop') {
-      // Stop — timer stoppen en einde spel triggeren
-      clearInterval(timerInterval);
+      // Stop — schrijf gestopt:true naar Firebase
+      // De timer listener pikt dit op bij BEIDE teams tegelijk
       await db.ref('spellen/' + groepsCode + '/timer').update({
         gepauzeerd: false,
         gestopt:    true
       });
-      toonEinde('tijd', null);
     }
   }
 
