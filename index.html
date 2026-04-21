@@ -8,13 +8,17 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="theme-color" content="#f0f4f8" />
   <title>Stad Bingo</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
+  <!-- ============================================================
+       FEATURE: CLOUDINARY
+       Gebruikt voor video uploads (te groot voor RTDB).
+       Vervangt Firebase Storage — gratis tot 25 GB.
+       Uploads gaan via een unsigned upload preset (geen API key
+       in de client nodig).
+  ============================================================ -->
   <style>
     :root {
       --rood:        #e74c3c;
@@ -32,9 +36,7 @@
       --achtergrond: #f0f4f8;
       --schaduw:     0 4px 20px rgba(0,0,0,0.09);
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: 'Nunito', sans-serif;
       background: var(--achtergrond);
@@ -45,10 +47,8 @@
       padding: 1.5rem 1rem 4rem;
       color: var(--tekst);
     }
-
     .scherm { display: none; width: 100%; max-width: 600px; }
     .scherm.actief { display: block; }
-
     .kaart {
       background: var(--wit);
       border-radius: 16px;
@@ -56,10 +56,8 @@
       box-shadow: var(--schaduw);
       margin-bottom: 1rem;
     }
-
     h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
     .subtitel { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 1.5rem; }
-
     .knop {
       display: inline-block;
       padding: 0.7rem 1.4rem;
@@ -79,7 +77,6 @@
     .knop-oranje { background: var(--oranje); color: var(--wit); }
     .knop-rood   { background: var(--rood);   color: var(--wit); }
     .knop-vol    { width: 100%; text-align: center; margin-top: 0.5rem; }
-
     .lobby-opties { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
     .lobby-optie {
       background: var(--grijs-licht);
@@ -95,7 +92,6 @@
     .lobby-optie .opt-icoon   { font-size: 2rem; margin-bottom: 0.4rem; }
     .lobby-optie .opt-titel   { font-weight: 800; font-size: 1rem; }
     .lobby-optie .opt-info    { font-size: 0.8rem; color: #636e72; margin-top: 2px; }
-
     #code-display {
       font-size: 2.8rem;
       font-weight: 900;
@@ -107,7 +103,6 @@
       border-radius: 12px;
       margin: 0.5rem 0 1rem;
     }
-
     input[type="text"] {
       width: 100%;
       padding: 0.65rem 1rem;
@@ -123,7 +118,6 @@
       transition: border-color 0.2s;
     }
     input[type="text"]:focus { outline: none; border-color: var(--blauw); }
-
     .team-knoppen { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
     .team-knop {
       padding: 1.5rem 1rem;
@@ -139,7 +133,6 @@
     .team-knop:active { transform: scale(0.97); }
     .team-knop.rood   { background: var(--rood);  color: var(--wit); }
     .team-knop.blauw  { background: var(--blauw); color: var(--wit); }
-
     .statusbalk {
       display: flex;
       align-items: center;
@@ -156,26 +149,18 @@
     .team-badge.rood  { background: var(--rood); }
     .team-badge.blauw { background: var(--blauw); }
     .code-pill { font-size: 0.75rem; font-weight: 800; color: #95a5a6; letter-spacing: 1px; }
-
-    /* ============================================================
-       FEATURE: TIMER WEERGAVE
-       Wordt oranje tijdens pauze
-    ============================================================ */
     #timer-display { font-size: 1.3rem; font-weight: 900; letter-spacing: 1px; transition: color 0.3s; }
     #timer-display.waarschuwing { color: var(--rood); }
     #timer-display.gepauzeerd  { color: var(--oranje); }
-
     .scores { display: flex; gap: 0.75rem; font-size: 0.9rem; font-weight: 800; }
     .score-rood  { color: var(--rood); }
     .score-blauw { color: var(--blauw); }
-
     .bingo-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 6px;
       margin-bottom: 0.75rem;
     }
-
     .bingo-cel {
       aspect-ratio: 1;
       background: var(--wit);
@@ -193,17 +178,14 @@
       position: relative;
       overflow: hidden;
     }
-
     .bingo-cel:hover:not(.vrij):not(.rood):not(.blauw):not(.wacht-rood):not(.wacht-blauw) {
       background: var(--grijs-licht);
       border-color: var(--grijs);
       transform: scale(1.04);
     }
-
     .bingo-cel.rood  { background: var(--rood-licht);  border-color: var(--rood);  cursor: default; }
     .bingo-cel.blauw { background: var(--blauw-licht); border-color: var(--blauw); cursor: default; }
     .bingo-cel.vrij  { background: #ffeaa7; border-color: #fdcb6e; cursor: default; }
-
     .bingo-cel.wacht-rood {
       background: repeating-linear-gradient(45deg, var(--rood-licht) 0px, var(--rood-licht) 5px, #fff 5px, #fff 11px);
       border-color: var(--rood);
@@ -214,9 +196,7 @@
       border-color: var(--blauw);
       cursor: default;
     }
-
     .bingo-cel.bingo-lijn { box-shadow: 0 0 0 3px gold; border-color: gold !important; }
-
     .cel-icoon { font-size: 16px; line-height: 1; margin-bottom: 3px; position: relative; z-index: 1; }
     .cel-tekst { font-size: 9px; color: #636e72; line-height: 1.3; position: relative; z-index: 1; }
     .bingo-cel.rood        .cel-tekst { color: var(--rood-tekst); }
@@ -224,11 +204,6 @@
     .bingo-cel.vrij        .cel-tekst { color: #7d6608; font-weight: 700; }
     .bingo-cel.wacht-rood  .cel-tekst { color: var(--rood-tekst); }
     .bingo-cel.wacht-blauw .cel-tekst { color: var(--blauw-tekst); }
-
-    /* ============================================================
-       FEATURE: TIMER KNOPPEN BALK
-       Start, Pauze en Stop naast elkaar onder de kaart.
-    ============================================================ */
     .instellingen {
       background: var(--wit);
       border-radius: 12px;
@@ -249,12 +224,6 @@
       font-family: 'Nunito', sans-serif;
       font-size: 0.9rem;
     }
-
-    /* ============================================================
-       FEATURE: PAUZE BANNER
-       Verschijnt op het spelscherm als het spel gepauzeerd is.
-       Zichtbaar voor beide teams.
-    ============================================================ */
     #pauze-banner {
       display: none;
       background: #fef9e7;
@@ -273,7 +242,6 @@
       0%, 100% { border-color: var(--oranje); }
       50% { border-color: #f39c12; box-shadow: 0 0 0 3px #fdebd0; }
     }
-
     .overlay {
       display: none;
       position: fixed;
@@ -285,7 +253,6 @@
       padding: 1rem;
     }
     .overlay.actief { display: flex; }
-
     .popup {
       background: var(--wit);
       border-radius: 20px;
@@ -297,37 +264,51 @@
       -webkit-overflow-scrolling: touch;
       box-shadow: 0 8px 40px rgba(0,0,0,0.2);
     }
-
     .popup h3       { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.25rem; }
     .popup-subtitel { font-size: 0.85rem; color: #7f8c8d; margin-bottom: 1rem; }
-
+    /* ============================================================
+       FEATURE: UPLOAD KEUZE KNOPPEN
+       Twee knoppen naast elkaar: camera en gallerij.
+       Camera opent direct de camera, gallerij opent de
+       bestandskiezer voor foto's EN video's.
+    ============================================================ */
+    .upload-keuze {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
     .foto-label {
-      display: block;
-      width: 100%;
-      padding: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      padding: 0.9rem 0.5rem;
       background: var(--grijs-licht);
       border: 2px dashed var(--grijs);
       border-radius: 10px;
       text-align: center;
       cursor: pointer;
       font-weight: 700;
-      font-size: 0.9rem;
-      margin-bottom: 0.75rem;
+      font-size: 0.82rem;
+      line-height: 1.2;
       transition: border-color 0.2s, background 0.2s;
+      min-height: 72px;
     }
     .foto-label:hover { border-color: var(--blauw); background: var(--blauw-licht); }
-    #foto-input { display: none; }
-
-    #foto-preview {
+    .foto-label .upload-icoon { font-size: 1.5rem; }
+    #camera-input, #gallerij-input { display: none; }
+    #foto-preview, #video-preview {
       display: none;
       width: 100%;
-      max-height: 200px;
+      max-height: 220px;
       object-fit: contain;
       border-radius: 10px;
       margin-bottom: 0.75rem;
       border: 1px solid var(--grijs);
+      background: #000;
     }
-
     textarea {
       width: 100%;
       padding: 0.65rem 0.9rem;
@@ -342,7 +323,6 @@
     }
     textarea:focus { outline: none; border-color: var(--blauw); }
     .popup-knoppen { display: flex; gap: 0.75rem; }
-
     #beoordeling-overlay {
       display: none;
       position: fixed;
@@ -354,7 +334,6 @@
       padding: 1rem;
     }
     #beoordeling-overlay.actief { display: flex; }
-
     #beoordeling-popup {
       background: var(--wit);
       border-radius: 20px;
@@ -370,7 +349,6 @@
       from { transform: scale(0.9); opacity: 0; }
       to   { transform: scale(1);   opacity: 1; }
     }
-
     .beoordeling-header {
       padding: 1rem 1.25rem;
       border-radius: 20px 20px 0 0;
@@ -384,9 +362,7 @@
     .header-icoon { font-size: 1.6rem; }
     .header-team  { font-size: 0.78rem; font-weight: 700; opacity: 0.85; }
     .header-naam  { font-size: 1.05rem; font-weight: 900; }
-
     .beoordeling-body { padding: 1.25rem; }
-
     #beoordeling-foto {
       width: 100%;
       max-height: 340px;
@@ -398,7 +374,18 @@
       display: none;
       cursor: zoom-in;
     }
-
+    /* ============================================================
+       FEATURE: VIDEO WEERGAVE IN BEOORDELING
+    ============================================================ */
+    #beoordeling-video {
+      width: 100%;
+      max-height: 340px;
+      border-radius: 12px;
+      border: 1px solid var(--grijs);
+      background: #000;
+      margin-bottom: 1rem;
+      display: none;
+    }
     .geen-foto-blok {
       background: var(--grijs-licht);
       border-radius: 12px;
@@ -408,7 +395,6 @@
       font-size: 2.5rem;
     }
     .geen-foto-blok p { font-size: 0.85rem; color: #95a5a6; margin-top: 0.4rem; }
-
     #beoordeling-opmerking {
       background: var(--grijs-licht);
       border-radius: 10px;
@@ -418,7 +404,6 @@
       font-style: italic;
       margin-bottom: 1rem;
     }
-
     #beoordeling-reactie {
       width: 100%;
       padding: 0.65rem 0.9rem;
@@ -432,7 +417,6 @@
       transition: border-color 0.2s;
     }
     #beoordeling-reactie:focus { outline: none; border-color: var(--blauw); }
-
     .beoordeling-knoppen { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .beoordeling-knop {
       padding: 0.9rem;
@@ -448,10 +432,6 @@
     .beoordeling-knop:active { transform: scale(0.97); }
     .beoordeling-knop.afwijzen   { background: var(--grijs-licht); color: #636e72; }
     .beoordeling-knop.goedkeuren { background: var(--groen);       color: var(--wit); }
-
-    /* ============================================================
-       FEATURE: FOTO VERGROOT
-    ============================================================ */
     #foto-groot-overlay {
       display: none;
       position: fixed;
@@ -465,7 +445,6 @@
     }
     #foto-groot-overlay.actief { display: flex; }
     #foto-groot { max-width: 95vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
-
     #laad-overlay {
       display: none;
       position: fixed;
@@ -488,12 +467,18 @@
       animation: draaien 0.7s linear infinite;
     }
     @keyframes draaien { to { transform: rotate(360deg); } }
-
+    /* ============================================================
+       FEATURE: UPLOAD PROGRESS
+       Laat een percentage zien bij grote video uploads.
+    ============================================================ */
+    #laad-progress {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      font-weight: 600;
+    }
     #einde-popup .popup { text-align: center; }
     #einde-popup .popup h2 { font-size: 1.9rem; margin-bottom: 0.5rem; }
     #einde-popup .popup p  { color: #636e72; margin-bottom: 1.5rem; }
-
-    /* Responsive */
     @media (max-width: 380px) {
       body { padding: 0.75rem 0.5rem 3rem; }
       .kaart { padding: 1.25rem; }
@@ -507,18 +492,18 @@
       .knop { padding: 0.65rem 0.8rem; font-size: 0.85rem; }
       .team-knop { padding: 1.25rem 0.75rem; font-size: 1rem; }
       .popup { padding: 1.25rem; }
-      #beoordeling-foto { max-height: 200px; }
+      #beoordeling-foto, #beoordeling-video { max-height: 220px; }
       #code-display { font-size: 2rem; letter-spacing: 5px; }
       .beoordeling-knoppen { grid-template-columns: 1fr; }
       .bingo-grid { gap: 4px; }
+      .foto-label { font-size: 0.75rem; padding: 0.7rem 0.25rem; min-height: 64px; }
+      .foto-label .upload-icoon { font-size: 1.25rem; }
     }
-
     @media (min-width: 381px) and (max-width: 600px) {
       body { padding: 1rem 0.75rem 3rem; }
       .cel-icoon { font-size: 15px; }
       .cel-tekst { font-size: 8.5px; }
     }
-
     @media (min-width: 601px) and (max-width: 1024px) {
       .scherm { max-width: 580px; }
       .cel-icoon { font-size: 20px; }
@@ -526,29 +511,24 @@
       .knop { padding: 0.85rem 1.2rem; font-size: 1rem; }
       .team-knop { padding: 2rem 1.5rem; font-size: 1.2rem; }
       .beoordeling-knop { padding: 1rem; font-size: 1.05rem; }
-      #beoordeling-foto { max-height: 400px; }
+      #beoordeling-foto, #beoordeling-video { max-height: 400px; }
       textarea { height: 90px; font-size: 1rem; }
       input[type="text"] { font-size: 1.4rem; }
       #timer-display { font-size: 1.5rem; }
       .bingo-grid { gap: 8px; }
     }
-
     @media (min-width: 1025px) {
       .scherm { max-width: 640px; }
       .cel-icoon { font-size: 22px; }
       .cel-tekst { font-size: 12px; }
       .bingo-grid { gap: 10px; }
     }
-
     .bingo-cel, .knop, .team-knop, .beoordeling-knop, .lobby-optie, .foto-label {
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
-
     .bingo-grid, .statusbalk { -webkit-user-select: none; user-select: none; }
-
     .popup, #beoordeling-popup { -webkit-overflow-scrolling: touch; }
-
     @supports (padding: max(0px)) {
       body {
         padding-left:   max(0.75rem, env(safe-area-inset-left));
@@ -559,12 +539,11 @@
   </style>
 </head>
 <body>
-
 <div id="laad-overlay">
   <div class="spinner"></div>
   <span id="laad-tekst">Laden...</span>
+  <span id="laad-progress"></span>
 </div>
-
 <div id="lobby-scherm" class="scherm actief">
   <div class="kaart">
     <h2>🏙️ Stad Bingo</h2>
@@ -597,7 +576,6 @@
     </div>
   </div>
 </div>
-
 <div id="teamkeuze-scherm" class="scherm">
   <div class="kaart">
     <h2>Kies jouw team</h2>
@@ -608,9 +586,7 @@
     </div>
   </div>
 </div>
-
 <div id="spel-scherm" class="scherm">
-
   <div class="statusbalk">
     <div id="team-badge" class="team-badge">Team</div>
     <div id="timer-display">00:00</div>
@@ -620,23 +596,8 @@
     </div>
     <div class="code-pill" id="spel-code-pill">----</div>
   </div>
-
-  <!-- ============================================================
-       FEATURE: PAUZE BANNER
-       Verschijnt op het scherm van BEIDE teams als het spel
-       gepauzeerd is. Pulseert oranje zodat het opvalt.
-  ============================================================ -->
   <div id="pauze-banner">⏸ Spel is gepauzeerd — wacht op hervatting</div>
-
   <div class="bingo-grid" id="bingo-grid"></div>
-
-  <!-- ============================================================
-       FEATURE: TIMER KNOPPEN
-       Start    — start de timer (alleen voor het spel begint)
-       Pauze    — vraagt goedkeuring aan het andere team
-       Hervatten — verschijnt tijdens pauze, ook met goedkeuring
-       Stop     — vraagt goedkeuring aan het andere team
-  ============================================================ -->
   <div class="instellingen">
     <label for="tijd-keuze">⏱</label>
     <select id="tijd-keuze">
@@ -651,15 +612,8 @@
     <button id="hervatten-knop" class="knop knop-groen" onclick="vraagHervatten()" style="display:none;">▶ Hervatten</button>
     <button id="stop-knop"     class="knop knop-rood"   onclick="vraagStop()"    style="display:none;">⏹ Stop</button>
   </div>
-
 </div>
-
-<!-- ============================================================
-     FEATURE: OPDRACHT UITLEG POPUP
-     Verschijnt als eerste als je een vakje aantikt.
-     Toont het icoon, de korte titel en de volledige uitleg.
-     Je kiest dan of je bewijs wil indienen of terug wil.
-============================================================ -->
+<!-- Opdracht uitleg popup -->
 <div id="uitleg-overlay" class="overlay">
   <div class="popup" style="text-align:center;">
     <div style="font-size:3rem;margin-bottom:0.5rem;" id="uitleg-icoon">🎯</div>
@@ -673,15 +627,32 @@
     </div>
   </div>
 </div>
-
-<!-- Bewijs upload popup -->
+<!-- ============================================================
+     FEATURE: BEWIJS UPLOAD POPUP
+     Nu met twee knoppen:
+       📷 Camera  — opent direct de camera (foto maken)
+       🖼️ Gallerij — opent gallerij voor foto's en video's
+     Video's worden via Firebase Storage geüpload, foto's blijven
+     (gecomprimeerd) in de Realtime Database.
+============================================================ -->
 <div id="upload-overlay" class="overlay">
   <div class="popup">
     <h3 id="upload-challenge-naam">Challenge</h3>
-    <p class="popup-subtitel">Maak een foto als bewijs. Het andere team beoordeelt dit.</p>
-    <label class="foto-label" for="foto-input">📷 Tik hier om een foto te maken of kiezen</label>
-    <input type="file" id="foto-input" accept="image/*" capture="environment" onchange="fotoGekozen(event)" />
-    <img id="foto-preview" alt="preview" />
+    <p class="popup-subtitel">Maak een foto, kies iets uit je gallerij of upload een video (max 30s) als bewijs.</p>
+    <div class="upload-keuze">
+      <label class="foto-label" for="camera-input">
+        <span class="upload-icoon">📷</span>
+        <span>Foto maken</span>
+      </label>
+      <label class="foto-label" for="gallerij-input">
+        <span class="upload-icoon">🖼️</span>
+        <span>Gallerij<br>(foto of video)</span>
+      </label>
+    </div>
+    <input type="file" id="camera-input"    accept="image/*" capture="environment" onchange="mediaGekozen(event)" />
+    <input type="file" id="gallerij-input"  accept="image/*,video/*" onchange="mediaGekozen(event)" />
+    <img   id="foto-preview"  alt="preview" />
+    <video id="video-preview" controls playsinline muted></video>
     <textarea id="upload-opmerking" placeholder="Optioneel: korte toelichting..."></textarea>
     <div class="popup-knoppen">
       <button class="knop knop-grijs" style="flex:1" onclick="sluitUpload()">✕ Annuleer</button>
@@ -689,7 +660,6 @@
     </div>
   </div>
 </div>
-
 <!-- Bewijs beoordeling popup -->
 <div id="beoordeling-overlay">
   <div id="beoordeling-popup">
@@ -701,9 +671,10 @@
       </div>
     </div>
     <div class="beoordeling-body">
-      <img id="beoordeling-foto" alt="bewijs" onclick="toonFotoGroot(this.src)" />
+      <img   id="beoordeling-foto"  alt="bewijs" onclick="toonFotoGroot(this.src)" />
+      <video id="beoordeling-video" controls playsinline></video>
       <div class="geen-foto-blok" id="beoordeling-geen-foto">
-        📝<p>Geen foto — alleen een opmerking</p>
+        📝<p>Geen foto of video — alleen een opmerking</p>
       </div>
       <div id="beoordeling-opmerking"></div>
       <textarea id="beoordeling-reactie" placeholder="Optioneel: stuur een reactie mee..."></textarea>
@@ -714,12 +685,10 @@
     </div>
   </div>
 </div>
-
 <!-- Foto vergroot -->
 <div id="foto-groot-overlay" onclick="sluitFotoGroot()">
   <img id="foto-groot" alt="bewijs groot" />
 </div>
-
 <!-- Reactie ontvangst popup -->
 <div id="reactie-overlay" class="overlay">
   <div class="popup" style="text-align:center;">
@@ -730,12 +699,7 @@
     <button class="knop knop-grijs knop-vol" onclick="sluitReactiePopup()">OK</button>
   </div>
 </div>
-
-<!-- ============================================================
-     FEATURE: PAUZE / STOP VERZOEK POPUP
-     Springt op bij het andere team als jouw team pauze of stop
-     vraagt. Het andere team moet dit goedkeuren of afwijzen.
-============================================================ -->
+<!-- Pauze / stop verzoek popup -->
 <div id="verzoek-overlay" class="overlay">
   <div class="popup" style="text-align:center;">
     <div style="font-size:2.5rem;margin-bottom:0.75rem;" id="verzoek-icoon">⏸</div>
@@ -747,7 +711,6 @@
     </div>
   </div>
 </div>
-
 <!-- Win/einde popup -->
 <div id="einde-popup" class="overlay">
   <div class="popup" style="text-align:center;">
@@ -756,10 +719,7 @@
     <button class="knop knop-grijs knop-vol" onclick="herstartSpel()">↩ Opnieuw spelen</button>
   </div>
 </div>
-
-
 <script>
-
   // ============================================================
   // FIREBASE INITIALISATIE
   // ============================================================
@@ -772,10 +732,30 @@
     messagingSenderId: "98028461881",
     appId:             "1:98028461881:web:128c25a368ecb4ef2f52e8"
   };
-
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db   = firebase.database();
+
+  // ============================================================
+  // CLOUDINARY CONFIG  ← HIER JOUW GEGEVENS INVULLEN
+  // 1) Maak een gratis account op https://cloudinary.com
+  // 2) In je dashboard zie je 'Cloud name' bovenaan — zet die hieronder
+  // 3) Ga naar Settings → Upload → Upload presets → 'Add upload preset'
+  //    - Signing Mode: Unsigned
+  //    - Folder: stadbingo (optioneel, voor overzicht)
+  //    - Save
+  //    - Kopieer de preset name en zet die hieronder
+  // ============================================================
+  const CLOUDINARY_CLOUD_NAME    = "dyr5bysbu";
+  const CLOUDINARY_UPLOAD_PRESET = "stadbingo";
+
+  // ============================================================
+  // FEATURE: LIMIETEN VOOR MEDIA
+  // ============================================================
+  const MAX_VIDEO_SECONDEN = 30;               // Max video lengte
+  const MAX_VIDEO_BYTES    = 60 * 1024 * 1024; // Vangnet: 60 MB
+  const FOTO_MAX_BREEDTE   = 1280;             // Comprimeer foto's tot max 1280px breed
+  const FOTO_KWALITEIT     = 0.8;              // JPEG kwaliteit bij compressie
 
   // ============================================================
   // CHALLENGES LIJST
@@ -818,14 +798,19 @@
   let timerInterval      = null;
   let secondenOver       = 0;
   let huidigVakjeIndex   = null;
-  let gekozenFotoData    = null;
+
+  // Nieuwe media variabelen (foto EN video)
+  let gekozenFotoData    = null;   // Base64 string (gecomprimeerde foto)
+  let gekozenVideoFile   = null;   // File object voor video upload
+  let gekozenMediaType   = null;   // 'foto' of 'video'
+
   let bingoAlGemeld      = false;
   let gezieneMeldingen   = new Set();
   let huidigeMeldingId   = null;
   let huidigeMeldingData = null;
   let authKlaar          = false;
   let uid                = null;
-  let huidigVerzoekType  = null; // 'pauze', 'hervatten' of 'stop'
+  let huidigVerzoekType  = null;
 
   // ============================================================
   // HULPFUNCTIES
@@ -834,12 +819,17 @@
     document.querySelectorAll('.scherm').forEach(s => s.classList.remove('actief'));
     document.getElementById(id).classList.add('actief');
   }
-  function toonLader(tekst) {
+  function toonLader(tekst, progress) {
     document.getElementById('laad-tekst').textContent = tekst || 'Laden...';
+    document.getElementById('laad-progress').textContent = progress || '';
     document.getElementById('laad-overlay').classList.add('actief');
+  }
+  function updateLaderProgress(progress) {
+    document.getElementById('laad-progress').textContent = progress || '';
   }
   function verbergLader() {
     document.getElementById('laad-overlay').classList.remove('actief');
+    document.getElementById('laad-progress').textContent = '';
   }
 
   // ============================================================
@@ -860,7 +850,6 @@
       verbergLader();
     }
   }
-
   auth.onAuthStateChanged(function(user) {
     uid = user ? user.uid : null;
     authKlaar = !!user;
@@ -873,16 +862,13 @@
     const opgeslagenCode = localStorage.getItem('stadbingo_groepsCode');
     const opgeslagenTeam = localStorage.getItem('stadbingo_team');
     if (!opgeslagenCode || !opgeslagenTeam) return;
-
     groepsCode = opgeslagenCode;
     huidigTeam = opgeslagenTeam;
     gezieneMeldingen = new Set();
-
     const badge = document.getElementById('team-badge');
     badge.textContent = huidigTeam === 'rood' ? '🔴 Team Rood' : '🔵 Team Blauw';
     badge.className   = 'team-badge ' + huidigTeam;
     document.getElementById('spel-code-pill').textContent = 'CODE: ' + groepsCode;
-
     toonScherm('spel-scherm');
     bouwKaart();
     bindFirebaseListeners();
@@ -897,14 +883,12 @@
     document.getElementById('sectie-nieuw').style.display = keuze === 'nieuw' ? 'block' : 'none';
     document.getElementById('sectie-join').style.display  = keuze === 'join'  ? 'block' : 'none';
   }
-
   function genereerCode() {
     const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
     let code = '';
     for (let i = 0; i < 4; i++) code += letters[Math.floor(Math.random() * letters.length)];
     return code;
   }
-
   async function maakGroepAan() {
     if (!authKlaar) { alert('Nog even wachten, verbinding loopt nog.'); return; }
     try {
@@ -915,14 +899,12 @@
         const snap = await db.ref('spellen/' + code).get();
         if (!snap.exists()) break;
       } while (++pogingen < 10);
-
       groepsCode = code;
       await db.ref('spellen/' + code).set({
         vakjes: {}, meldingen: {}, reacties: {}, verzoeken: {}, spelers: {},
         timer: { gestart: false, eindtijd: 0, gepauzeerd: false, secondenOver: 0 },
         aangemaakt: Date.now()
       });
-
       localStorage.setItem('stadbingo_groepsCode', groepsCode);
       document.getElementById('code-display').textContent = code;
       document.getElementById('code-resultaat').style.display = 'block';
@@ -933,7 +915,6 @@
       verbergLader();
     }
   }
-
   async function joinGroep() {
     if (!authKlaar) { alert('Nog even wachten, verbinding loopt nog.'); return; }
     const code = document.getElementById('code-invoer').value.trim().toUpperCase();
@@ -952,12 +933,10 @@
       verbergLader();
     }
   }
-
   function gaNaarTeamkeuze() {
     document.getElementById('teamkeuze-subtitel').textContent = 'Groep: ' + groepsCode;
     toonScherm('teamkeuze-scherm');
   }
-
   function kiesTeam(team) {
     huidigTeam = team;
     localStorage.setItem('stadbingo_team', team);
@@ -984,11 +963,6 @@
       cel.className = 'bingo-cel' + (c.vrij ? ' vrij' : '');
       cel.dataset.index = index;
       const ic = document.createElement('div'); ic.className = 'cel-icoon'; ic.textContent = c.icoon;
-      // ============================================================
-      // FEATURE: KORTE TITEL IN VAKJE
-      // Het vakje toont alleen het icoon en de korte titel.
-      // De volledige uitleg verschijnt pas als je erop drukt.
-      // ============================================================
       const tx = document.createElement('div'); tx.className = 'cel-tekst'; tx.textContent = c.titel || c.tekst;
       cel.appendChild(ic);
       cel.appendChild(tx);
@@ -1001,14 +975,12 @@
   // FIREBASE LISTENERS
   // ============================================================
   function bindFirebaseListeners() {
-
     db.ref('spellen/' + groepsCode + '/vakjes').on('value', function(snap) {
       const vakjes = snap.val() || {};
       updateKaart(vakjes);
       updateScore(vakjes);
       checkBingo(vakjes);
     });
-
     db.ref('spellen/' + groepsCode + '/meldingen').on('value', function(snap) {
       const meldingen = snap.val() || {};
       const anderTeam = huidigTeam === 'rood' ? 'blauw' : 'rood';
@@ -1019,16 +991,9 @@
         }
       });
     });
-
-    // ============================================================
-    // FEATURE: TIMER LISTENER
-    // Luistert naar timer wijzigingen inclusief pauze en stop.
-    // Past de knoppen en banner aan voor BEIDE teams.
-    // ============================================================
     db.ref('spellen/' + groepsCode + '/timer').on('value', function(snap) {
       const t = snap.val();
       if (!t) return;
-
       if (t.gestart && !spelGestart) {
         spelGestart = true;
         document.getElementById('start-knop').style.display    = 'none';
@@ -1040,8 +1005,6 @@
         updateTimerDisplay();
         if (!spelGepauzeerd) loopTimer();
       }
-
-      // Pauze verwerken
       if (t.gepauzeerd && !spelGepauzeerd) {
         spelGepauzeerd = true;
         clearInterval(timerInterval);
@@ -1052,8 +1015,6 @@
         document.getElementById('pauze-knop').style.display     = 'none';
         document.getElementById('hervatten-knop').style.display = 'inline-block';
       }
-
-      // Hervatten verwerken
       if (!t.gepauzeerd && spelGepauzeerd) {
         spelGepauzeerd = false;
         secondenOver = Math.max(0, Math.round((t.eindtijd - Date.now()) / 1000));
@@ -1063,19 +1024,11 @@
         document.getElementById('hervatten-knop').style.display = 'none';
         loopTimer();
       }
-
-      // ============================================================
-      // FEATURE: STOP VERWERKEN — BEIDE TEAMS
-      // Zodra gestopt:true in Firebase staat, triggert dit bij
-      // BEIDE teams de eindstand popup. Zo gaan beide teams
-      // tegelijk uit het spel, ook het team dat akkoord gaf.
-      // ============================================================
       if (t.gestopt && !bingoAlGemeld) {
         clearInterval(timerInterval);
         toonEinde('tijd', null);
       }
     });
-
     db.ref('spellen/' + groepsCode + '/reacties').on('value', function(snap) {
       const reacties = snap.val() || {};
       Object.entries(reacties).forEach(function([id, r]) {
@@ -1085,12 +1038,6 @@
         }
       });
     });
-
-    // ============================================================
-    // FEATURE: VERZOEK LISTENER (PAUZE / STOP)
-    // Als het andere team pauze of stop vraagt, opent de popup
-    // bij dit team om het te accepteren of te weigeren.
-    // ============================================================
     db.ref('spellen/' + groepsCode + '/verzoeken').on('value', function(snap) {
       const verzoeken = snap.val() || {};
       const anderTeam = huidigTeam === 'rood' ? 'blauw' : 'rood';
@@ -1104,58 +1051,31 @@
   }
 
   // ============================================================
-  // FEATURE: PAUZE VRAGEN
-  // Stuurt een verzoek naar het andere team om te pauzeren.
-  // Het spel pauzeert pas als het andere team akkoord gaat.
+  // PAUZE / HERVATTEN / STOP VERZOEKEN
   // ============================================================
   async function vraagPauze() {
     const id = 'V_' + Date.now();
     await db.ref('spellen/' + groepsCode + '/verzoeken/' + id).set({
-      type:    'pauze',
-      vanTeam: huidigTeam,
-      status:  'wacht',
-      tijdstip: Date.now()
+      type: 'pauze', vanTeam: huidigTeam, status: 'wacht', tijdstip: Date.now()
     });
     alert('Pauze verzoek verstuurd! Wacht op goedkeuring van het andere team.');
   }
-
-  // ============================================================
-  // FEATURE: HERVATTEN VRAGEN
-  // Stuurt een verzoek naar het andere team om te hervatten.
-  // ============================================================
   async function vraagHervatten() {
     const id = 'V_' + Date.now();
     await db.ref('spellen/' + groepsCode + '/verzoeken/' + id).set({
-      type:    'hervatten',
-      vanTeam: huidigTeam,
-      status:  'wacht',
-      tijdstip: Date.now()
+      type: 'hervatten', vanTeam: huidigTeam, status: 'wacht', tijdstip: Date.now()
     });
     alert('Hervat verzoek verstuurd! Wacht op goedkeuring van het andere team.');
   }
-
-  // ============================================================
-  // FEATURE: STOP VRAGEN
-  // Stuurt een verzoek naar het andere team om het spel te stoppen.
-  // ============================================================
   async function vraagStop() {
     const id = 'V_' + Date.now();
     await db.ref('spellen/' + groepsCode + '/verzoeken/' + id).set({
-      type:    'stop',
-      vanTeam: huidigTeam,
-      status:  'wacht',
-      tijdstip: Date.now()
+      type: 'stop', vanTeam: huidigTeam, status: 'wacht', tijdstip: Date.now()
     });
     alert('Stop verzoek verstuurd! Wacht op goedkeuring van het andere team.');
   }
-
-  // ============================================================
-  // FEATURE: VERZOEK POPUP OPENEN
-  // Toont het verzoek van het andere team met akkoord/weiger knoppen.
-  // ============================================================
   function openVerzoekPopup(id, v) {
     huidigVerzoekType = { id: id, type: v.type };
-
     const iconen = { pauze: '⏸', hervatten: '▶', stop: '⏹' };
     const teksten = {
       pauze:    'Team ' + (v.vanTeam === 'rood' ? 'Rood 🔴' : 'Blauw 🔵') + ' wil het spel pauzeren. Ga jij akkoord?',
@@ -1163,51 +1083,30 @@
       stop:     'Team ' + (v.vanTeam === 'rood' ? 'Rood 🔴' : 'Blauw 🔵') + ' wil het spel stoppen. Ga jij akkoord?'
     };
     const titels = { pauze: 'Pauze verzoek', hervatten: 'Hervatten verzoek', stop: 'Stop verzoek' };
-
     document.getElementById('verzoek-icoon').textContent = iconen[v.type] || '❓';
     document.getElementById('verzoek-titel').textContent = titels[v.type] || 'Verzoek';
     document.getElementById('verzoek-tekst').textContent = teksten[v.type] || '';
     document.getElementById('verzoek-overlay').classList.add('actief');
   }
-
-  // ============================================================
-  // FEATURE: VERZOEK BEANTWOORDEN (AKKOORD / WEIGEREN)
-  // Bij akkoord wordt de actie uitgevoerd voor beide teams.
-  // Bij weigeren verdwijnt het verzoek zonder effect.
-  // ============================================================
   async function beantwoordVerzoek(akkoord) {
     document.getElementById('verzoek-overlay').classList.remove('actief');
     if (!huidigVerzoekType) return;
-
     const { id, type } = huidigVerzoekType;
     huidigVerzoekType = null;
-
-    // Verzoek verwijderen uit Firebase
     await db.ref('spellen/' + groepsCode + '/verzoeken/' + id).remove();
-
-    if (!akkoord) return; // geweigerd — niets doen
-
+    if (!akkoord) return;
     if (type === 'pauze') {
-      // Pauze uitvoeren — sla resterende seconden op in Firebase
       await db.ref('spellen/' + groepsCode + '/timer').update({
-        gepauzeerd:   true,
-        secondenOver: secondenOver
+        gepauzeerd: true, secondenOver: secondenOver
       });
-
     } else if (type === 'hervatten') {
-      // Hervatten — bereken nieuwe eindtijd op basis van resterende seconden
       const nieuweEindtijd = Date.now() + secondenOver * 1000;
       await db.ref('spellen/' + groepsCode + '/timer').update({
-        gepauzeerd: false,
-        eindtijd:   nieuweEindtijd
+        gepauzeerd: false, eindtijd: nieuweEindtijd
       });
-
     } else if (type === 'stop') {
-      // Stop — schrijf gestopt:true naar Firebase
-      // De timer listener pikt dit op bij BEIDE teams tegelijk
       await db.ref('spellen/' + groepsCode + '/timer').update({
-        gepauzeerd: false,
-        gestopt:    true
+        gepauzeerd: false, gestopt: true
       });
     }
   }
@@ -1246,12 +1145,6 @@
       }
       return;
     }
-
-    // ============================================================
-    // FEATURE: UITLEG POPUP EERST TONEN
-    // Als je op een vrij vakje tikt, zie je eerst de volledige
-    // uitleg van de opdracht. Daarna kun je bewijs indienen.
-    // ============================================================
     huidigVakjeIndex = index;
     const c = challenges[index];
     document.getElementById('uitleg-icoon').textContent = c.icoon;
@@ -1259,80 +1152,288 @@
     document.getElementById('uitleg-tekst').textContent = c.tekst;
     document.getElementById('uitleg-overlay').classList.add('actief');
   }
-
-  // ============================================================
-  // FEATURE: UITLEG POPUP SLUITEN (TERUG KNOP)
-  // ============================================================
   function sluitUitleg() {
     document.getElementById('uitleg-overlay').classList.remove('actief');
     huidigVakjeIndex = null;
   }
-
-  // ============================================================
-  // FEATURE: VAN UITLEG NAAR UPLOAD GAAN
-  // Sluit de uitleg popup en opent de bewijs upload popup.
-  // ============================================================
   function openUploadVanuitUitleg() {
     document.getElementById('uitleg-overlay').classList.remove('actief');
     const c = challenges[huidigVakjeIndex];
-    gekozenFotoData  = null;
-    document.getElementById('foto-preview').style.display = 'none';
-    document.getElementById('foto-preview').src = '';
+
+    // Reset alle media state
+    resetUploadUI();
+
     document.getElementById('upload-opmerking').value = '';
-    document.getElementById('foto-input').value = '';
     document.getElementById('upload-challenge-naam').textContent = c.icoon + ' ' + (c.titel || c.tekst);
     document.getElementById('upload-overlay').classList.add('actief');
   }
 
-  function fotoGekozen(event) {
+  // ============================================================
+  // FEATURE: UPLOAD UI RESETTEN
+  // Zet alle media preview elementen en inputs terug naar leeg.
+  // ============================================================
+  function resetUploadUI() {
+    gekozenFotoData  = null;
+    gekozenVideoFile = null;
+    gekozenMediaType = null;
+
+    const fotoPrev  = document.getElementById('foto-preview');
+    const videoPrev = document.getElementById('video-preview');
+
+    fotoPrev.style.display = 'none';
+    fotoPrev.src = '';
+
+    videoPrev.pause();
+    // Oude blob URL opruimen indien aanwezig
+    if (videoPrev.dataset.blobUrl) {
+      URL.revokeObjectURL(videoPrev.dataset.blobUrl);
+      delete videoPrev.dataset.blobUrl;
+    }
+    videoPrev.removeAttribute('src');
+    videoPrev.load();
+    videoPrev.style.display = 'none';
+
+    document.getElementById('camera-input').value    = '';
+    document.getElementById('gallerij-input').value  = '';
+  }
+
+  // ============================================================
+  // FEATURE: MEDIA GEKOZEN (FOTO OF VIDEO)
+  // Wordt aangeroepen door zowel de camera- als gallerij input.
+  // Detecteert automatisch of het een foto of video is en laat
+  // de juiste preview zien.
+  // ============================================================
+  async function mediaGekozen(event) {
     const bestand = event.target.files[0];
     if (!bestand) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      gekozenFotoData = e.target.result;
-      const p = document.getElementById('foto-preview');
-      p.src = gekozenFotoData;
-      p.style.display = 'block';
-    };
-    reader.readAsDataURL(bestand);
+
+    // Reset bestaande previews
+    const fotoPrev  = document.getElementById('foto-preview');
+    const videoPrev = document.getElementById('video-preview');
+    fotoPrev.style.display = 'none';
+    videoPrev.style.display = 'none';
+    if (videoPrev.dataset.blobUrl) {
+      URL.revokeObjectURL(videoPrev.dataset.blobUrl);
+      delete videoPrev.dataset.blobUrl;
+    }
+
+    gekozenFotoData  = null;
+    gekozenVideoFile = null;
+    gekozenMediaType = null;
+
+    if (bestand.type.startsWith('video/')) {
+      // ====== VIDEO ======
+      if (bestand.size > MAX_VIDEO_BYTES) {
+        alert('Video is te groot (' + Math.round(bestand.size / 1024 / 1024) + ' MB). Max ' + Math.round(MAX_VIDEO_BYTES / 1024 / 1024) + ' MB.');
+        event.target.value = '';
+        return;
+      }
+      // Duur controleren via metadata
+      const blobUrl = URL.createObjectURL(bestand);
+      const duur = await leesVideoDuur(blobUrl).catch(() => null);
+      if (duur !== null && duur > MAX_VIDEO_SECONDEN + 0.5) {
+        alert('Video duurt ' + Math.round(duur) + ' seconden. Max ' + MAX_VIDEO_SECONDEN + ' seconden.');
+        URL.revokeObjectURL(blobUrl);
+        event.target.value = '';
+        return;
+      }
+      gekozenVideoFile = bestand;
+      gekozenMediaType = 'video';
+      videoPrev.src = blobUrl;
+      videoPrev.dataset.blobUrl = blobUrl;
+      videoPrev.style.display = 'block';
+    } else if (bestand.type.startsWith('image/')) {
+      // ====== FOTO ======
+      try {
+        const gecomprimeerd = await leesEnComprimeerFoto(bestand);
+        gekozenFotoData  = gecomprimeerd;
+        gekozenMediaType = 'foto';
+        fotoPrev.src = gecomprimeerd;
+        fotoPrev.style.display = 'block';
+      } catch (err) {
+        console.error(err);
+        alert('Kon foto niet laden: ' + err.message);
+        event.target.value = '';
+      }
+    } else {
+      alert('Onbekend bestandstype. Kies een foto of video.');
+      event.target.value = '';
+    }
+  }
+
+  // ============================================================
+  // FEATURE: VIDEO DUUR UITLEZEN VIA METADATA
+  // ============================================================
+  function leesVideoDuur(blobUrl) {
+    return new Promise(function(resolve, reject) {
+      const v = document.createElement('video');
+      v.preload = 'metadata';
+      v.onloadedmetadata = function() { resolve(v.duration); };
+      v.onerror = function() { reject(new Error('metadata lezen mislukt')); };
+      v.src = blobUrl;
+    });
+  }
+
+  // ============================================================
+  // FEATURE: FOTO COMPRIMEREN
+  // Schaalt de foto naar max FOTO_MAX_BREEDTE en slaat hem op
+  // als JPEG met FOTO_KWALITEIT. Zo blijft de base64 string
+  // klein genoeg voor de Realtime Database.
+  // ============================================================
+  function leesEnComprimeerFoto(bestand) {
+    return new Promise(function(resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          let w = img.width, h = img.height;
+          if (w > FOTO_MAX_BREEDTE) {
+            h = Math.round(h * FOTO_MAX_BREEDTE / w);
+            w = FOTO_MAX_BREEDTE;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width  = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          try {
+            resolve(canvas.toDataURL('image/jpeg', FOTO_KWALITEIT));
+          } catch (err) {
+            reject(err);
+          }
+        };
+        img.onerror = function() { reject(new Error('afbeelding niet geldig')); };
+        img.src = e.target.result;
+      };
+      reader.onerror = function() { reject(new Error('bestand lezen mislukt')); };
+      reader.readAsDataURL(bestand);
+    });
   }
 
   function sluitUpload() {
     document.getElementById('upload-overlay').classList.remove('actief');
+    resetUploadUI();
     huidigVakjeIndex = null;
-    gekozenFotoData  = null;
   }
 
   // ============================================================
-  // BEWIJS VERSTUREN
+  // FEATURE: CLOUDINARY UPLOAD
+  // Uploadt een File (video of foto) naar Cloudinary via een
+  // unsigned upload preset. Geeft voortgang door aan de lader.
+  // Gebruikt XMLHttpRequest zodat we progress events krijgen.
+  // ============================================================
+  function uploadNaarCloudinary(bestand, soort) {
+    return new Promise(function(resolve, reject) {
+      if (!CLOUDINARY_CLOUD_NAME || CLOUDINARY_CLOUD_NAME === 'JOUW_CLOUD_NAME' ||
+          !CLOUDINARY_UPLOAD_PRESET || CLOUDINARY_UPLOAD_PRESET === 'JOUW_UPLOAD_PRESET') {
+        reject(new Error('Cloudinary niet geconfigureerd — vul CLOUDINARY_CLOUD_NAME en CLOUDINARY_UPLOAD_PRESET in.'));
+        return;
+      }
+      // 'auto' laat Cloudinary zelf bepalen (video of foto)
+      const pad = soort === 'video' ? 'video' : (soort === 'foto' ? 'image' : 'auto');
+      const url = 'https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/' + pad + '/upload';
+
+      const form = new FormData();
+      form.append('file', bestand);
+      form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      // Optioneel: folder per groep (als je preset dit toestaat)
+      if (groepsCode) form.append('folder', 'stadbingo/' + groepsCode);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          updateLaderProgress(pct + '%');
+        }
+      };
+      xhr.onload = function() {
+        try {
+          const resp = JSON.parse(xhr.responseText);
+          if (xhr.status >= 200 && xhr.status < 300 && resp.secure_url) {
+            resolve(resp);
+          } else {
+            reject(new Error((resp.error && resp.error.message) || ('HTTP ' + xhr.status)));
+          }
+        } catch (err) {
+          reject(new Error('onleesbaar antwoord van Cloudinary'));
+        }
+      };
+      xhr.onerror = function() { reject(new Error('netwerkfout bij uploaden')); };
+      xhr.send(form);
+    });
+  }
+
+  // ============================================================
+  // BEWIJS VERSTUREN (FOTO OF VIDEO)
+  // Foto → base64 in Realtime Database
+  // Video → Firebase Storage, alleen URL in Realtime Database
   // ============================================================
   async function stuurBewijs() {
     const opmerking = document.getElementById('upload-opmerking').value.trim();
-    if (!gekozenFotoData && !opmerking) {
-      alert('Voeg minimaal een foto of opmerking toe.');
+    if (!gekozenFotoData && !gekozenVideoFile && !opmerking) {
+      alert('Voeg minimaal een foto, video of opmerking toe.');
       return;
     }
-    const vakjeIdx = huidigVakjeIndex;
-    const fotoData = gekozenFotoData;
-    const opmTekst = opmerking;
-    sluitUpload();
-    toonLader('Bewijs uploaden...');
+    const vakjeIdx   = huidigVakjeIndex;
+    const type       = gekozenMediaType;
+    const fotoData   = gekozenFotoData;
+    const videoFile  = gekozenVideoFile;
+    const opmTekst   = opmerking;
 
-    await db.ref('spellen/' + groepsCode + '/vakjes/' + vakjeIdx).set({
-      team: huidigTeam, status: 'wacht'
-    });
-    await db.ref('spellen/' + groepsCode + '/meldingen/M_' + Date.now()).set({
-      vakjeIndex: vakjeIdx,
-      team:       huidigTeam,
-      fotoData:   fotoData || '',
-      opmerking:  opmTekst,
-      tijdstip:   Date.now()
-    });
-    verbergLader();
+    // Sluit popup en toon lader
+    document.getElementById('upload-overlay').classList.remove('actief');
+    toonLader(type === 'video' ? 'Video uploaden...' : 'Bewijs uploaden...', type === 'video' ? '0%' : '');
+
+    let mediaUrl     = '';
+    let mediaType    = '';
+    let mediaPubId   = ''; // Cloudinary public_id (voor eventuele cleanup / referentie)
+
+    try {
+      if (type === 'video') {
+        // Upload video naar Cloudinary via unsigned preset
+        const resultaat = await uploadNaarCloudinary(videoFile, 'video');
+        mediaUrl   = resultaat.secure_url;
+        mediaPubId = resultaat.public_id;
+        mediaType  = 'video';
+      }
+    } catch (err) {
+      console.error('Upload fout:', err);
+      verbergLader();
+      alert('Video uploaden mislukt: ' + err.message + '\n\nTip: controleer je Cloudinary cloud_name en upload preset (moet Unsigned zijn).');
+      // Reset media keuze
+      gekozenFotoData = null; gekozenVideoFile = null; gekozenMediaType = null;
+      huidigVakjeIndex = null;
+      return;
+    }
+
+    try {
+      await db.ref('spellen/' + groepsCode + '/vakjes/' + vakjeIdx).set({
+        team: huidigTeam, status: 'wacht'
+      });
+      await db.ref('spellen/' + groepsCode + '/meldingen/M_' + Date.now()).set({
+        vakjeIndex: vakjeIdx,
+        team:       huidigTeam,
+        fotoData:   fotoData || '',        // blijft voor foto's (base64)
+        mediaUrl:   mediaUrl,              // video URL uit Cloudinary
+        mediaType:  mediaType,             // 'video' of ''
+        mediaPubId: mediaPubId,            // Cloudinary public_id (referentie)
+        opmerking:  opmTekst,
+        tijdstip:   Date.now()
+      });
+    } catch (err) {
+      console.error(err);
+      alert('Bewijs opslaan mislukt: ' + err.message);
+    } finally {
+      // Reset media state
+      gekozenFotoData = null; gekozenVideoFile = null; gekozenMediaType = null;
+      huidigVakjeIndex = null;
+      verbergLader();
+    }
   }
 
   // ============================================================
-  // BEOORDELING POPUP
+  // BEOORDELING POPUP (FOTO OF VIDEO)
   // ============================================================
   function openBeoordelingPopup(meldingId, m) {
     huidigeMeldingId   = meldingId;
@@ -1346,14 +1447,27 @@
     document.getElementById('beoordeling-naam').textContent  = c.tekst;
 
     const fotoEl     = document.getElementById('beoordeling-foto');
+    const videoEl    = document.getElementById('beoordeling-video');
     const geenFotoEl = document.getElementById('beoordeling-geen-foto');
-    if (m.fotoData) {
-      fotoEl.src               = m.fotoData;
-      fotoEl.style.display     = 'block';
-      geenFotoEl.style.display = 'none';
+
+    // Reset alle media weergave
+    fotoEl.style.display     = 'none';
+    fotoEl.src               = '';
+    videoEl.pause();
+    videoEl.removeAttribute('src');
+    videoEl.load();
+    videoEl.style.display    = 'none';
+    geenFotoEl.style.display = 'none';
+
+    if (m.mediaType === 'video' && m.mediaUrl) {
+      // Video weergeven
+      videoEl.src = m.mediaUrl;
+      videoEl.style.display = 'block';
+    } else if (m.fotoData) {
+      // Foto weergeven
+      fotoEl.src = m.fotoData;
+      fotoEl.style.display = 'block';
     } else {
-      fotoEl.src               = '';
-      fotoEl.style.display     = 'none';
       geenFotoEl.style.display = 'block';
     }
 
@@ -1374,6 +1488,13 @@
     const reactie = document.getElementById('beoordeling-reactie').value.trim();
     huidigeMeldingId   = null;
     huidigeMeldingData = null;
+
+    // Video pauzeren en opruimen
+    const videoEl = document.getElementById('beoordeling-video');
+    videoEl.pause();
+    videoEl.removeAttribute('src');
+    videoEl.load();
+
     document.getElementById('beoordeling-overlay').classList.remove('actief');
     document.getElementById('beoordeling-reactie').value = '';
 
@@ -1383,6 +1504,11 @@
       });
     } else {
       await db.ref('spellen/' + groepsCode + '/vakjes/' + data.vakjeIndex).remove();
+      // Opmerking: Cloudinary uploads via unsigned preset kunnen niet
+      // vanuit de client worden verwijderd (dat vereist een API secret).
+      // Voor een schoolproject is dat prima — de gratis tier is 25 GB.
+      // Wil je later toch opruimen, dan kan dat handmatig via het
+      // Cloudinary Media Library dashboard.
     }
     await db.ref('spellen/' + groepsCode + '/reacties/R_' + Date.now()).set({
       vakjeIndex:  data.vakjeIndex,
@@ -1405,7 +1531,6 @@
     document.getElementById('score-rood').textContent  = '🔴 ' + r;
     document.getElementById('score-blauw').textContent = '🔵 ' + b;
   }
-
   function checkBingo(vakjes) {
     if (bingoAlGemeld) return;
     for (const team of ['rood', 'blauw']) {
@@ -1423,7 +1548,6 @@
       if (rij([4,8,12,16,20])) { highlightLijn([4,8,12,16,20]); bingoAlGemeld = true; toonEinde('bingo', team); return; }
     }
   }
-
   function highlightLijn(lijn) {
     const cellen = document.querySelectorAll('.bingo-cel');
     lijn.forEach(i => cellen[i].classList.add('bingo-lijn'));
@@ -1433,6 +1557,7 @@
   // FOTO VERGROOT
   // ============================================================
   function toonFotoGroot(src) {
+    if (!src) return;
     document.getElementById('foto-groot').src = src;
     document.getElementById('foto-groot-overlay').classList.add('actief');
   }
@@ -1455,7 +1580,6 @@
     document.getElementById('reactie-overlay').classList.add('actief');
     db.ref('spellen/' + groepsCode + '/reacties/' + id).remove();
   }
-
   function sluitReactiePopup() {
     document.getElementById('reactie-overlay').classList.remove('actief');
   }
@@ -1471,7 +1595,6 @@
       gestart: true, eindtijd: eindtijd, gepauzeerd: false, secondenOver: duur
     });
   }
-
   function loopTimer() {
     clearInterval(timerInterval);
     timerInterval = setInterval(function() {
@@ -1481,7 +1604,6 @@
       if (secondenOver <= 0) { clearInterval(timerInterval); toonEinde('tijd', null); }
     }, 1000);
   }
-
   function updateTimerDisplay() {
     const min = Math.floor(Math.max(0, secondenOver) / 60);
     const sec = Math.max(0, secondenOver) % 60;
@@ -1526,7 +1648,9 @@
     localStorage.removeItem('stadbingo_team');
     spelGestart = false; spelGepauzeerd = false;
     huidigTeam = null; groepsCode = null;
-    huidigVakjeIndex = null; gekozenFotoData = null; bingoAlGemeld = false;
+    huidigVakjeIndex = null;
+    gekozenFotoData = null; gekozenVideoFile = null; gekozenMediaType = null;
+    bingoAlGemeld = false;
     gezieneMeldingen = new Set();
     huidigeMeldingId = null; huidigeMeldingData = null; huidigVerzoekType = null;
     document.getElementById('einde-popup').classList.remove('actief');
@@ -1550,7 +1674,6 @@
   }
 
   zorgVoorLogin();
-
 </script>
 </body>
 </html>
