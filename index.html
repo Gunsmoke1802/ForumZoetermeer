@@ -15,6 +15,7 @@
        FEATURE: FIREBASE — zorgt dat alle telefoons dezelfde data zien
   ============================================================ -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
@@ -811,9 +812,10 @@
     appId:             "1:98028461881:web:128c25a368ecb4ef2f52e8"
   };
 
-  firebase.initializeApp(firebaseConfig);
-  const db      = firebase.database();
-  const storage = firebase.storage();
+ firebase.initializeApp(firebaseConfig);
+ const auth    = firebase.auth();
+ const db      = firebase.database();
+ const storage = firebase.storage();
 
   // ============================================================
   // FEATURE: CHALLENGES LIJST — pas aan voor jouw stad
@@ -860,6 +862,8 @@
   let gezieneMeldingen = new Set(); // voorkomt dubbele popups
   let huidigeMeldingId   = null;
   let huidigeMeldingData = null;
+  let authKlaar = false;
+  let uid = null;
 
   // ============================================================
   // HULPFUNCTIES
@@ -876,6 +880,35 @@
     document.getElementById('laad-overlay').classList.remove('actief');
   }
 
+async function zorgVoorLogin() {
+  try {
+    toonLader('Inloggen...');
+    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    if (!auth.currentUser) {
+      await auth.signInAnonymously();
+    }
+
+    uid = auth.currentUser.uid;
+    authKlaar = true;
+    herstelSessieNaRefresh();
+  } catch (err) {
+    console.error('Auth fout:', err);
+    alert('Inloggen bij Firebase is mislukt.');
+  } finally {
+    verbergLader();
+  }
+}
+
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    uid = user.uid;
+    authKlaar = true;
+  } else {
+    uid = null;
+    authKlaar = false;
+  }
+});
   // ============================================================
   // FEATURE: LOBBY
   // ============================================================
@@ -893,7 +926,32 @@
     return code;
   }
 
+function herstelSessieNaRefresh() {
+  const opgeslagenCode = localStorage.getItem('stadbingo_groepsCode');
+  const opgeslagenTeam = localStorage.getItem('stadbingo_team');
+
+  if (!opgeslagenCode || !opgeslagenTeam) return;
+
+  groepsCode = opgeslagenCode;
+  huidigTeam = opgeslagenTeam;
+
+  const badge = document.getElementById('team-badge');
+  badge.textContent = huidigTeam === 'rood' ? '🔴 Team Rood' : '🔵 Team Blauw';
+  badge.className   = 'team-badge ' + huidigTeam;
+  document.getElementById('spel-code-pill').textContent = 'CODE: ' + groepsCode;
+
+  toonScherm('spel-scherm');
+  bouwKaart();
+  bindFirebaseListeners();
+}
+
   async function maakGroepAan() {
+  if (!authKlaar) {
+    alert('Nog even wachten, inloggen loopt nog.');
+    return;
+  }
+
+  try {
     toonLader('Groep aanmaken...');
     let code, pogingen = 0;
     do {
@@ -903,29 +961,61 @@
     } while (++pogingen < 10);
 
     groepsCode = code;
+
     await db.ref('spellen/' + code).set({
-      vakjes: {}, meldingen: {},
+      vakjes: {},
+      meldingen: {},
+      reacties: {},
+      spelers: {},
       timer: { gestart: false, eindtijd: 0 },
-      aangemaakt: Date.now()
+      aangemaakt: Date.now(),
+      eigenaarUid: uid
     });
 
-    verbergLader();
     document.getElementById('code-display').textContent = code;
     document.getElementById('code-resultaat').style.display = 'block';
+    localStorage.setItem('stadbingo_groepsCode', groepsCode);
+  } catch (err) {
+    console.error(err);
+    alert('Groep aanmaken is mislukt. Controleer Authentication en database rules.');
+  } finally {
+    verbergLader();
+  }
+}
+
+async function joinGroep() {
+  if (!authKlaar) {
+    alert('Nog even wachten, inloggen loopt nog.');
+    return;
   }
 
-  async function joinGroep() {
-    const code = document.getElementById('code-invoer').value.trim().toUpperCase();
-    if (code.length !== 4) { alert('Voer een geldige 4-letter code in.'); return; }
+  const code = document.getElementById('code-invoer').value.trim().toUpperCase();
+  if (code.length !== 4) {
+    alert('Voer een geldige 4-letter code in.');
+    return;
+  }
+
+  try {
     toonLader('Code controleren...');
     const snap = await db.ref('spellen/' + code).get();
-    verbergLader();
-    if (!snap.exists()) { alert('Code niet gevonden.'); return; }
+    if (!snap.exists()) {
+      alert('Code niet gevonden.');
+      return;
+    }
     groepsCode = code;
+    localStorage.setItem('stadbingo_groepsCode', groepsCode);
     gaNaarTeamkeuze();
+  } catch (err) {
+    console.error(err);
+    alert('Joinen mislukt. Controleer Authentication en database rules.');
+  } finally {
+    verbergLader();
   }
+}
+
 
   function gaNaarTeamkeuze() {
+    localStorage.setItem('stadbingo_groepsCode', groepsCode);
     document.getElementById('teamkeuze-subtitel').textContent = 'Groep: ' + groepsCode;
     toonScherm('teamkeuze-scherm');
   }
@@ -935,6 +1025,15 @@
   // ============================================================
   function kiesTeam(team) {
     huidigTeam = team;
+
+    localStorage.setItem('stadbingo_team', team);
+    localStorage.setItem('stadbingo_groepsCode', groepsCode);
+
+db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
+  team: team,
+  laatstGezien: Date.now()
+});
+
     const badge = document.getElementById('team-badge');
     badge.textContent = team === 'rood' ? '🔴 Team Rood' : '🔵 Team Blauw';
     badge.className   = 'team-badge ' + team;
@@ -1342,6 +1441,10 @@
   // FEATURE: HERSTARTEN
   // ============================================================
   function herstartSpel() {
+
+localStorage.removeItem('stadbingo_groepsCode');
+localStorage.removeItem('stadbingo_team');
+
     clearInterval(timerInterval);
     spelGestart = false; huidigTeam = null; groepsCode = null;
     huidigVakjeIndex = null; gekozenFotoData = null; bingoAlGemeld = false;
@@ -1358,6 +1461,8 @@
     selecteerOptie('nieuw');
     toonScherm('lobby-scherm');
   }
+
+zorgVoorLogin();
 
 </script>
 </body>
