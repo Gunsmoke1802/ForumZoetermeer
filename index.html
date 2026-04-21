@@ -11,13 +11,9 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
 
-  <!-- ============================================================
-       FEATURE: FIREBASE — zorgt dat alle telefoons dezelfde data zien
-  ============================================================ -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
   <style>
     :root {
@@ -28,6 +24,7 @@
       --blauw-licht: #d6eaf8;
       --blauw-tekst: #1a5276;
       --groen:       #27ae60;
+      --oranje:      #e67e22;
       --grijs:       #bdc3c7;
       --grijs-licht: #ecf0f1;
       --wit:         #ffffff;
@@ -49,9 +46,6 @@
       color: var(--tekst);
     }
 
-    /* ============================================================
-       SCHERMEN
-    ============================================================ */
     .scherm { display: none; width: 100%; max-width: 600px; }
     .scherm.actief { display: block; }
 
@@ -66,9 +60,6 @@
     h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
     .subtitel { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 1.5rem; }
 
-    /* ============================================================
-       KNOPPEN
-    ============================================================ */
     .knop {
       display: inline-block;
       padding: 0.7rem 1.4rem;
@@ -83,13 +74,12 @@
     .knop:hover    { opacity: 0.88; }
     .knop:active   { transform: scale(0.97); }
     .knop:disabled { opacity: 0.45; cursor: default; }
-    .knop-groen { background: var(--groen); color: var(--wit); }
-    .knop-grijs { background: #636e72;      color: var(--wit); }
-    .knop-vol   { width: 100%; text-align: center; margin-top: 0.5rem; }
+    .knop-groen  { background: var(--groen);  color: var(--wit); }
+    .knop-grijs  { background: #636e72;       color: var(--wit); }
+    .knop-oranje { background: var(--oranje); color: var(--wit); }
+    .knop-rood   { background: var(--rood);   color: var(--wit); }
+    .knop-vol    { width: 100%; text-align: center; margin-top: 0.5rem; }
 
-    /* ============================================================
-       FEATURE: LOBBY SCHERM
-    ============================================================ */
     .lobby-opties { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
     .lobby-optie {
       background: var(--grijs-licht);
@@ -134,9 +124,6 @@
     }
     input[type="text"]:focus { outline: none; border-color: var(--blauw); }
 
-    /* ============================================================
-       FEATURE: TEAMKEUZE
-    ============================================================ */
     .team-knoppen { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
     .team-knop {
       padding: 1.5rem 1rem;
@@ -153,9 +140,6 @@
     .team-knop.rood   { background: var(--rood);  color: var(--wit); }
     .team-knop.blauw  { background: var(--blauw); color: var(--wit); }
 
-    /* ============================================================
-       FEATURE: STATUSBALK
-    ============================================================ */
     .statusbalk {
       display: flex;
       align-items: center;
@@ -174,18 +158,17 @@
     .code-pill { font-size: 0.75rem; font-weight: 800; color: #95a5a6; letter-spacing: 1px; }
 
     /* ============================================================
-       FEATURE: TIMER
+       FEATURE: TIMER WEERGAVE
+       Wordt oranje tijdens pauze
     ============================================================ */
     #timer-display { font-size: 1.3rem; font-weight: 900; letter-spacing: 1px; transition: color 0.3s; }
     #timer-display.waarschuwing { color: var(--rood); }
+    #timer-display.gepauzeerd  { color: var(--oranje); }
 
     .scores { display: flex; gap: 0.75rem; font-size: 0.9rem; font-weight: 800; }
     .score-rood  { color: var(--rood); }
     .score-blauw { color: var(--blauw); }
 
-    /* ============================================================
-       FEATURE: BINGOKAART 5x5
-    ============================================================ */
     .bingo-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -193,9 +176,6 @@
       margin-bottom: 0.75rem;
     }
 
-    /* ============================================================
-       FEATURE: VAKJES
-    ============================================================ */
     .bingo-cel {
       aspect-ratio: 1;
       background: var(--wit);
@@ -220,43 +200,21 @@
       transform: scale(1.04);
     }
 
-    /* Goedgekeurd — volledig ingekleurd */
     .bingo-cel.rood  { background: var(--rood-licht);  border-color: var(--rood);  cursor: default; }
     .bingo-cel.blauw { background: var(--blauw-licht); border-color: var(--blauw); cursor: default; }
     .bingo-cel.vrij  { background: #ffeaa7; border-color: #fdcb6e; cursor: default; }
 
-    /* ============================================================
-       FEATURE: WACHT-STATUS — vakje gestreept in teamkleur
-       Zodra bewijs is ingediend wordt het vakje DIRECT gestreept
-       in de kleur van het indienende team op ALLE telefoons.
-       Het andere team kan dit vakje niet meer claimen.
-    ============================================================ */
     .bingo-cel.wacht-rood {
-      background: repeating-linear-gradient(
-        45deg,
-        var(--rood-licht) 0px,
-        var(--rood-licht) 5px,
-        #fff 5px,
-        #fff 11px
-      );
+      background: repeating-linear-gradient(45deg, var(--rood-licht) 0px, var(--rood-licht) 5px, #fff 5px, #fff 11px);
       border-color: var(--rood);
       cursor: default;
     }
     .bingo-cel.wacht-blauw {
-      background: repeating-linear-gradient(
-        45deg,
-        var(--blauw-licht) 0px,
-        var(--blauw-licht) 5px,
-        #fff 5px,
-        #fff 11px
-      );
+      background: repeating-linear-gradient(45deg, var(--blauw-licht) 0px, var(--blauw-licht) 5px, #fff 5px, #fff 11px);
       border-color: var(--blauw);
       cursor: default;
     }
 
-    /* ============================================================
-       FEATURE: BINGO-LIJN HIGHLIGHT
-    ============================================================ */
     .bingo-cel.bingo-lijn { box-shadow: 0 0 0 3px gold; border-color: gold !important; }
 
     .cel-icoon { font-size: 16px; line-height: 1; margin-bottom: 3px; position: relative; z-index: 1; }
@@ -268,7 +226,8 @@
     .bingo-cel.wacht-blauw .cel-tekst { color: var(--blauw-tekst); }
 
     /* ============================================================
-       FEATURE: TIMER INSTELLEN
+       FEATURE: TIMER KNOPPEN BALK
+       Start, Pauze en Stop naast elkaar onder de kaart.
     ============================================================ */
     .instellingen {
       background: var(--wit);
@@ -276,7 +235,7 @@
       padding: 0.7rem 1.2rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.6rem;
       flex-wrap: wrap;
       box-shadow: var(--schaduw);
       font-size: 0.9rem;
@@ -292,8 +251,29 @@
     }
 
     /* ============================================================
-       FEATURE: BEWIJS UPLOAD POPUP
+       FEATURE: PAUZE BANNER
+       Verschijnt op het spelscherm als het spel gepauzeerd is.
+       Zichtbaar voor beide teams.
     ============================================================ */
+    #pauze-banner {
+      display: none;
+      background: #fef9e7;
+      border: 2px solid var(--oranje);
+      border-radius: 12px;
+      padding: 0.75rem 1.2rem;
+      text-align: center;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #935116;
+      margin-bottom: 0.75rem;
+      animation: puls-oranje 1.5s infinite;
+    }
+    #pauze-banner.actief { display: block; }
+    @keyframes puls-oranje {
+      0%, 100% { border-color: var(--oranje); }
+      50% { border-color: #f39c12; box-shadow: 0 0 0 3px #fdebd0; }
+    }
+
     .overlay {
       display: none;
       position: fixed;
@@ -314,6 +294,7 @@
       max-width: 400px;
       max-height: 90vh;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       box-shadow: 0 8px 40px rgba(0,0,0,0.2);
     }
 
@@ -362,12 +343,6 @@
     textarea:focus { outline: none; border-color: var(--blauw); }
     .popup-knoppen { display: flex; gap: 0.75rem; }
 
-    /* ============================================================
-       FEATURE: BEWIJS BEOORDELING POPUP
-       Springt AUTOMATISCH op bij het andere team.
-       Toont de foto volledig en de challengenaam.
-       Direct goedkeuren of afwijzen.
-    ============================================================ */
     #beoordeling-overlay {
       display: none;
       position: fixed;
@@ -387,6 +362,7 @@
       max-width: 420px;
       max-height: 92vh;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       box-shadow: 0 8px 40px rgba(0,0,0,0.3);
       animation: popup-in 0.25s ease;
     }
@@ -402,19 +378,15 @@
       align-items: center;
       gap: 0.75rem;
     }
-    .beoordeling-header.rood  { background: var(--rood);  color: var(--wit); }
-    .beoordeling-header.blauw { background: var(--blauw); color: var(--wit); }
+    .beoordeling-header.rood   { background: var(--rood);   color: var(--wit); }
+    .beoordeling-header.blauw  { background: var(--blauw);  color: var(--wit); }
+    .beoordeling-header.oranje { background: var(--oranje); color: var(--wit); }
     .header-icoon { font-size: 1.6rem; }
     .header-team  { font-size: 0.78rem; font-weight: 700; opacity: 0.85; }
     .header-naam  { font-size: 1.05rem; font-weight: 900; }
 
     .beoordeling-body { padding: 1.25rem; }
 
-    /* ============================================================
-       FEATURE: BEWIJS FOTO VOLLEDIG ZICHTBAAR
-       De foto is zo groot mogelijk zodat het andere team
-       goed kan beoordelen of het bewijs geldig is.
-    ============================================================ */
     #beoordeling-foto {
       width: 100%;
       max-height: 340px;
@@ -447,9 +419,6 @@
       margin-bottom: 1rem;
     }
 
-    /* ============================================================
-       FEATURE: REACTIE TEKSTVELD IN BEOORDELING POPUP
-    ============================================================ */
     #beoordeling-reactie {
       width: 100%;
       padding: 0.65rem 0.9rem;
@@ -478,7 +447,7 @@
     .beoordeling-knop:hover  { opacity: 0.88; }
     .beoordeling-knop:active { transform: scale(0.97); }
     .beoordeling-knop.afwijzen   { background: var(--grijs-licht); color: #636e72; }
-    .beoordeling-knop.goedkeuren { background: var(--groen); color: var(--wit); }
+    .beoordeling-knop.goedkeuren { background: var(--groen);       color: var(--wit); }
 
     /* ============================================================
        FEATURE: FOTO VERGROOT
@@ -497,9 +466,6 @@
     #foto-groot-overlay.actief { display: flex; }
     #foto-groot { max-width: 95vw; max-height: 90vh; border-radius: 8px; object-fit: contain; }
 
-    /* ============================================================
-       FEATURE: LAADINDICATOR
-    ============================================================ */
     #laad-overlay {
       display: none;
       position: fixed;
@@ -523,19 +489,11 @@
     }
     @keyframes draaien { to { transform: rotate(360deg); } }
 
-    /* ============================================================
-       FEATURE: WIN/EINDE POPUP
-    ============================================================ */
     #einde-popup .popup { text-align: center; }
     #einde-popup .popup h2 { font-size: 1.9rem; margin-bottom: 0.5rem; }
     #einde-popup .popup p  { color: #636e72; margin-bottom: 1.5rem; }
 
-    /* ============================================================
-       FEATURE: RESPONSIVE — SMARTPHONES EN TABLETS
-       Zorgt dat alles goed past op elk schermformaat.
-    ============================================================ */
-
-    /* Kleine smartphones (tot 380px) */
+    /* Responsive */
     @media (max-width: 380px) {
       body { padding: 0.75rem 0.5rem 3rem; }
       .kaart { padding: 1.25rem; }
@@ -546,7 +504,7 @@
       #timer-display { font-size: 1.05rem; }
       .scores { font-size: 0.78rem; }
       .code-pill { display: none; }
-      .knop { padding: 0.75rem 1rem; font-size: 0.9rem; }
+      .knop { padding: 0.65rem 0.8rem; font-size: 0.85rem; }
       .team-knop { padding: 1.25rem 0.75rem; font-size: 1rem; }
       .popup { padding: 1.25rem; }
       #beoordeling-foto { max-height: 200px; }
@@ -555,19 +513,17 @@
       .bingo-grid { gap: 4px; }
     }
 
-    /* Normale smartphones (381px - 600px) */
     @media (min-width: 381px) and (max-width: 600px) {
       body { padding: 1rem 0.75rem 3rem; }
       .cel-icoon { font-size: 15px; }
       .cel-tekst { font-size: 8.5px; }
     }
 
-    /* Tablets (601px - 1024px) */
     @media (min-width: 601px) and (max-width: 1024px) {
       .scherm { max-width: 580px; }
       .cel-icoon { font-size: 20px; }
       .cel-tekst { font-size: 11px; }
-      .knop { padding: 0.85rem 1.6rem; font-size: 1rem; }
+      .knop { padding: 0.85rem 1.2rem; font-size: 1rem; }
       .team-knop { padding: 2rem 1.5rem; font-size: 1.2rem; }
       .beoordeling-knop { padding: 1rem; font-size: 1.05rem; }
       #beoordeling-foto { max-height: 400px; }
@@ -577,7 +533,6 @@
       .bingo-grid { gap: 8px; }
     }
 
-    /* Grote tablets en iPads landscape (1025px+) */
     @media (min-width: 1025px) {
       .scherm { max-width: 640px; }
       .cel-icoon { font-size: 22px; }
@@ -585,25 +540,15 @@
       .bingo-grid { gap: 10px; }
     }
 
-    /* Snelle touch response — geen vertraging bij aantikken */
-    .bingo-cel, .knop, .team-knop, .beoordeling-knop,
-    .lobby-optie, .foto-label {
+    .bingo-cel, .knop, .team-knop, .beoordeling-knop, .lobby-optie, .foto-label {
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
 
-    /* Voorkomt onbedoelde tekstselectie tijdens spelen */
-    .bingo-grid, .statusbalk {
-      -webkit-user-select: none;
-      user-select: none;
-    }
+    .bingo-grid, .statusbalk { -webkit-user-select: none; user-select: none; }
 
-    /* Soepel scrollen in popups op iOS */
-    .popup, #beoordeling-popup {
-      -webkit-overflow-scrolling: touch;
-    }
+    .popup, #beoordeling-popup { -webkit-overflow-scrolling: touch; }
 
-    /* Veilige zone voor iPhones met notch/Dynamic Island */
     @supports (padding: max(0px)) {
       body {
         padding-left:   max(0.75rem, env(safe-area-inset-left));
@@ -611,25 +556,19 @@
         padding-bottom: max(3rem,    env(safe-area-inset-bottom));
       }
     }
-
   </style>
 </head>
 <body>
 
-<!-- LAADINDICATOR -->
 <div id="laad-overlay">
   <div class="spinner"></div>
   <span id="laad-tekst">Laden...</span>
 </div>
 
-<!-- ============================================================
-     FEATURE: LOBBY SCHERM
-============================================================ -->
 <div id="lobby-scherm" class="scherm actief">
   <div class="kaart">
     <h2>🏙️ Stad Bingo</h2>
     <p class="subtitel">Maak een nieuwe groep aan of join via een bestaande code.</p>
-
     <div class="lobby-opties">
       <div class="lobby-optie geselecteerd" id="opt-nieuw" onclick="selecteerOptie('nieuw')">
         <div class="opt-icoon">🆕</div>
@@ -642,11 +581,8 @@
         <div class="opt-info">Speel mee via code</div>
       </div>
     </div>
-
     <div id="sectie-nieuw">
-      <p style="font-size:0.88rem;color:#636e72;margin-bottom:0.75rem;">
-        Klik aanmaken — deel daarna de code met je groepsleden.
-      </p>
+      <p style="font-size:0.88rem;color:#636e72;margin-bottom:0.75rem;">Klik aanmaken — deel daarna de code met je groepsleden.</p>
       <button class="knop knop-groen knop-vol" onclick="maakGroepAan()">✚ Groep aanmaken</button>
       <div id="code-resultaat" style="display:none;margin-top:1rem;">
         <p style="font-size:0.85rem;font-weight:700;margin-bottom:0.25rem;">Deel deze code:</p>
@@ -654,7 +590,6 @@
         <button class="knop knop-groen knop-vol" onclick="gaNaarTeamkeuze()">➜ Verder</button>
       </div>
     </div>
-
     <div id="sectie-join" style="display:none;">
       <label style="font-weight:700;font-size:0.9rem;">Voer de 4-letter code in:</label>
       <input type="text" id="code-invoer" maxlength="4" placeholder="ABCD" />
@@ -663,9 +598,6 @@
   </div>
 </div>
 
-<!-- ============================================================
-     FEATURE: TEAMKEUZE SCHERM
-============================================================ -->
 <div id="teamkeuze-scherm" class="scherm">
   <div class="kaart">
     <h2>Kies jouw team</h2>
@@ -677,9 +609,6 @@
   </div>
 </div>
 
-<!-- ============================================================
-     FEATURE: SPELSCHERM
-============================================================ -->
 <div id="spel-scherm" class="scherm">
 
   <div class="statusbalk">
@@ -692,10 +621,24 @@
     <div class="code-pill" id="spel-code-pill">----</div>
   </div>
 
+  <!-- ============================================================
+       FEATURE: PAUZE BANNER
+       Verschijnt op het scherm van BEIDE teams als het spel
+       gepauzeerd is. Pulseert oranje zodat het opvalt.
+  ============================================================ -->
+  <div id="pauze-banner">⏸ Spel is gepauzeerd — wacht op hervatting</div>
+
   <div class="bingo-grid" id="bingo-grid"></div>
 
+  <!-- ============================================================
+       FEATURE: TIMER KNOPPEN
+       Start    — start de timer (alleen voor het spel begint)
+       Pauze    — vraagt goedkeuring aan het andere team
+       Hervatten — verschijnt tijdens pauze, ook met goedkeuring
+       Stop     — vraagt goedkeuring aan het andere team
+  ============================================================ -->
   <div class="instellingen">
-    <label for="tijd-keuze">⏱ Speeltijd:</label>
+    <label for="tijd-keuze">⏱</label>
     <select id="tijd-keuze">
       <option value="7200">2 uur</option>
       <option value="10800">3 uur</option>
@@ -703,15 +646,15 @@
       <option value="18000">5 uur</option>
       <option value="21600">6 uur</option>
     </select>
-    <button id="start-knop" class="knop knop-groen" onclick="startTimer()">▶ Start</button>
+    <button id="start-knop"    class="knop knop-groen"  onclick="startTimer()">▶ Start</button>
+    <button id="pauze-knop"    class="knop knop-oranje" onclick="vraagPauze()"    style="display:none;">⏸ Pauze</button>
+    <button id="hervatten-knop" class="knop knop-groen" onclick="vraagHervatten()" style="display:none;">▶ Hervatten</button>
+    <button id="stop-knop"     class="knop knop-rood"   onclick="vraagStop()"    style="display:none;">⏹ Stop</button>
   </div>
 
 </div>
 
-<!-- ============================================================
-     FEATURE: BEWIJS UPLOAD POPUP
-     Opent als een speler op een vrij vakje tikt.
-============================================================ -->
+<!-- Bewijs upload popup -->
 <div id="upload-overlay" class="overlay">
   <div class="popup">
     <h3 id="upload-challenge-naam">Challenge</h3>
@@ -727,15 +670,9 @@
   </div>
 </div>
 
-<!-- ============================================================
-     FEATURE: BEWIJS BEOORDELING POPUP
-     Springt AUTOMATISCH op bij het andere team.
-     Toont de foto volledig zichtbaar + opmerking.
-     Goedkeuren = vakje ingekleurd. Afwijzen = vakje weer vrij.
-============================================================ -->
+<!-- Bewijs beoordeling popup -->
 <div id="beoordeling-overlay">
   <div id="beoordeling-popup">
-
     <div class="beoordeling-header" id="beoordeling-header">
       <div class="header-icoon" id="beoordeling-icoon">📸</div>
       <div>
@@ -743,40 +680,27 @@
         <div class="header-naam" id="beoordeling-naam">Challenge</div>
       </div>
     </div>
-
     <div class="beoordeling-body">
       <img id="beoordeling-foto" alt="bewijs" onclick="toonFotoGroot(this.src)" />
       <div class="geen-foto-blok" id="beoordeling-geen-foto">
         📝<p>Geen foto — alleen een opmerking</p>
       </div>
       <div id="beoordeling-opmerking"></div>
-
-      <!-- ============================================================
-           FEATURE: REACTIE TOEVOEGEN AAN BEOORDELING
-           Het beoordelende team kan een tekstreactie meesturen.
-           Die reactie verschijnt bij het indienende team als popup.
-      ============================================================ -->
       <textarea id="beoordeling-reactie" placeholder="Optioneel: stuur een reactie mee..."></textarea>
-
       <div class="beoordeling-knoppen">
         <button class="beoordeling-knop afwijzen"   onclick="beoordeelBewijs(false)">✕ Afwijzen</button>
         <button class="beoordeling-knop goedkeuren" onclick="beoordeelBewijs(true)">✓ Goedkeuren</button>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- Foto vergroot weergeven -->
+<!-- Foto vergroot -->
 <div id="foto-groot-overlay" onclick="sluitFotoGroot()">
   <img id="foto-groot" alt="bewijs groot" />
 </div>
 
-<!-- ============================================================
-     FEATURE: REACTIE ONTVANGST POPUP
-     Springt op bij het indienende team nadat het andere team
-     een reactie heeft gestuurd bij het goedkeuren of afwijzen.
-============================================================ -->
+<!-- Reactie ontvangst popup -->
 <div id="reactie-overlay" class="overlay">
   <div class="popup" style="text-align:center;">
     <div style="font-size:2rem;margin-bottom:0.5rem;" id="reactie-icoon">💬</div>
@@ -784,6 +708,23 @@
     <p id="reactie-challenge" style="font-size:0.85rem;color:#7f8c8d;margin-bottom:0.75rem;"></p>
     <div id="reactie-tekst" style="background:var(--grijs-licht);border-radius:10px;padding:0.75rem 1rem;font-style:italic;font-size:0.95rem;color:var(--tekst);margin-bottom:1.25rem;"></div>
     <button class="knop knop-grijs knop-vol" onclick="sluitReactiePopup()">OK</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     FEATURE: PAUZE / STOP VERZOEK POPUP
+     Springt op bij het andere team als jouw team pauze of stop
+     vraagt. Het andere team moet dit goedkeuren of afwijzen.
+============================================================ -->
+<div id="verzoek-overlay" class="overlay">
+  <div class="popup" style="text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:0.75rem;" id="verzoek-icoon">⏸</div>
+    <h3 id="verzoek-titel" style="margin-bottom:0.5rem;">Verzoek ontvangen</h3>
+    <p id="verzoek-tekst" style="font-size:0.9rem;color:#636e72;margin-bottom:1.5rem;"></p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+      <button class="knop knop-grijs"  onclick="beantwoordVerzoek(false)">✕ Weigeren</button>
+      <button class="knop knop-groen"  onclick="beantwoordVerzoek(true)">✓ Akkoord</button>
+    </div>
   </div>
 </div>
 
@@ -800,7 +741,7 @@
 <script>
 
   // ============================================================
-  // FEATURE: FIREBASE INITIALISATIE
+  // FIREBASE INITIALISATIE
   // ============================================================
   const firebaseConfig = {
     apiKey:            "AIzaSyDKGjqSiVqYxyx8btnmixr3D2wBmILKias",
@@ -812,13 +753,12 @@
     appId:             "1:98028461881:web:128c25a368ecb4ef2f52e8"
   };
 
- firebase.initializeApp(firebaseConfig);
- const auth    = firebase.auth();
- const db      = firebase.database();
- const storage = firebase.storage();
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db   = firebase.database();
 
   // ============================================================
-  // FEATURE: CHALLENGES LIJST — pas aan voor jouw stad
+  // CHALLENGES LIJST
   // ============================================================
   const challenges = [
     { icoon: "🌭", tekst: "Haal een hotdog bij de IKEA en eet deze binnen één minuut op" },
@@ -851,19 +791,21 @@
   // ============================================================
   // SPELSTATUS VARIABELEN
   // ============================================================
-  let groepsCode       = null;
-  let huidigTeam       = null;
-  let spelGestart      = false;
-  let timerInterval    = null;
-  let secondenOver     = 0;
-  let huidigVakjeIndex = null;
-  let gekozenFotoData  = null;
-  let bingoAlGemeld    = false;
-  let gezieneMeldingen = new Set(); // voorkomt dubbele popups
+  let groepsCode         = null;
+  let huidigTeam         = null;
+  let spelGestart        = false;
+  let spelGepauzeerd     = false;
+  let timerInterval      = null;
+  let secondenOver       = 0;
+  let huidigVakjeIndex   = null;
+  let gekozenFotoData    = null;
+  let bingoAlGemeld      = false;
+  let gezieneMeldingen   = new Set();
   let huidigeMeldingId   = null;
   let huidigeMeldingData = null;
-  let authKlaar = false;
-  let uid = null;
+  let authKlaar          = false;
+  let uid                = null;
+  let huidigVerzoekType  = null; // 'pauze', 'hervatten' of 'stop'
 
   // ============================================================
   // HULPFUNCTIES
@@ -880,37 +822,54 @@
     document.getElementById('laad-overlay').classList.remove('actief');
   }
 
-async function zorgVoorLogin() {
-  try {
-    toonLader('Inloggen...');
-    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-
-    if (!auth.currentUser) {
-      await auth.signInAnonymously();
-    }
-
-    uid = auth.currentUser.uid;
-    authKlaar = true;
-    herstelSessieNaRefresh();
-  } catch (err) {
-    console.error('Auth fout:', err);
-    alert('Inloggen bij Firebase is mislukt.');
-  } finally {
-    verbergLader();
-  }
-}
-
-auth.onAuthStateChanged(function(user) {
-  if (user) {
-    uid = user.uid;
-    authKlaar = true;
-  } else {
-    uid = null;
-    authKlaar = false;
-  }
-});
   // ============================================================
-  // FEATURE: LOBBY
+  // FEATURE: ANONIEM INLOGGEN
+  // ============================================================
+  async function zorgVoorLogin() {
+    try {
+      toonLader('Verbinden...');
+      await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      if (!auth.currentUser) await auth.signInAnonymously();
+      uid = auth.currentUser.uid;
+      authKlaar = true;
+      herstelSessieNaRefresh();
+    } catch (err) {
+      console.error('Auth fout:', err);
+      alert('Verbinding mislukt. Controleer je internetverbinding.');
+    } finally {
+      verbergLader();
+    }
+  }
+
+  auth.onAuthStateChanged(function(user) {
+    uid = user ? user.uid : null;
+    authKlaar = !!user;
+  });
+
+  // ============================================================
+  // FEATURE: SESSIE HERSTELLEN NA REFRESH
+  // ============================================================
+  function herstelSessieNaRefresh() {
+    const opgeslagenCode = localStorage.getItem('stadbingo_groepsCode');
+    const opgeslagenTeam = localStorage.getItem('stadbingo_team');
+    if (!opgeslagenCode || !opgeslagenTeam) return;
+
+    groepsCode = opgeslagenCode;
+    huidigTeam = opgeslagenTeam;
+    gezieneMeldingen = new Set();
+
+    const badge = document.getElementById('team-badge');
+    badge.textContent = huidigTeam === 'rood' ? '🔴 Team Rood' : '🔵 Team Blauw';
+    badge.className   = 'team-badge ' + huidigTeam;
+    document.getElementById('spel-code-pill').textContent = 'CODE: ' + groepsCode;
+
+    toonScherm('spel-scherm');
+    bouwKaart();
+    bindFirebaseListeners();
+  }
+
+  // ============================================================
+  // LOBBY FUNCTIES
   // ============================================================
   function selecteerOptie(keuze) {
     document.getElementById('opt-nieuw').classList.toggle('geselecteerd', keuze === 'nieuw');
@@ -926,114 +885,65 @@ auth.onAuthStateChanged(function(user) {
     return code;
   }
 
-function herstelSessieNaRefresh() {
-  const opgeslagenCode = localStorage.getItem('stadbingo_groepsCode');
-  const opgeslagenTeam = localStorage.getItem('stadbingo_team');
-
-  if (!opgeslagenCode || !opgeslagenTeam) return;
-
-  groepsCode = opgeslagenCode;
-  huidigTeam = opgeslagenTeam;
-
-  const badge = document.getElementById('team-badge');
-  badge.textContent = huidigTeam === 'rood' ? '🔴 Team Rood' : '🔵 Team Blauw';
-  badge.className   = 'team-badge ' + huidigTeam;
-  document.getElementById('spel-code-pill').textContent = 'CODE: ' + groepsCode;
-
-  toonScherm('spel-scherm');
-  bouwKaart();
-  bindFirebaseListeners();
-}
-
   async function maakGroepAan() {
-  if (!authKlaar) {
-    alert('Nog even wachten, inloggen loopt nog.');
-    return;
-  }
+    if (!authKlaar) { alert('Nog even wachten, verbinding loopt nog.'); return; }
+    try {
+      toonLader('Groep aanmaken...');
+      let code, pogingen = 0;
+      do {
+        code = genereerCode();
+        const snap = await db.ref('spellen/' + code).get();
+        if (!snap.exists()) break;
+      } while (++pogingen < 10);
 
-  try {
-    toonLader('Groep aanmaken...');
-    let code, pogingen = 0;
-    do {
-      code = genereerCode();
-      const snap = await db.ref('spellen/' + code).get();
-      if (!snap.exists()) break;
-    } while (++pogingen < 10);
+      groepsCode = code;
+      await db.ref('spellen/' + code).set({
+        vakjes: {}, meldingen: {}, reacties: {}, verzoeken: {}, spelers: {},
+        timer: { gestart: false, eindtijd: 0, gepauzeerd: false, secondenOver: 0 },
+        aangemaakt: Date.now()
+      });
 
-    groepsCode = code;
-
-    await db.ref('spellen/' + code).set({
-      vakjes: {},
-      meldingen: {},
-      reacties: {},
-      spelers: {},
-      timer: { gestart: false, eindtijd: 0 },
-      aangemaakt: Date.now(),
-      eigenaarUid: uid
-    });
-
-    document.getElementById('code-display').textContent = code;
-    document.getElementById('code-resultaat').style.display = 'block';
-    localStorage.setItem('stadbingo_groepsCode', groepsCode);
-  } catch (err) {
-    console.error(err);
-    alert('Groep aanmaken is mislukt. Controleer Authentication en database rules.');
-  } finally {
-    verbergLader();
-  }
-}
-
-async function joinGroep() {
-  if (!authKlaar) {
-    alert('Nog even wachten, inloggen loopt nog.');
-    return;
-  }
-
-  const code = document.getElementById('code-invoer').value.trim().toUpperCase();
-  if (code.length !== 4) {
-    alert('Voer een geldige 4-letter code in.');
-    return;
-  }
-
-  try {
-    toonLader('Code controleren...');
-    const snap = await db.ref('spellen/' + code).get();
-    if (!snap.exists()) {
-      alert('Code niet gevonden.');
-      return;
+      localStorage.setItem('stadbingo_groepsCode', groepsCode);
+      document.getElementById('code-display').textContent = code;
+      document.getElementById('code-resultaat').style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      alert('Groep aanmaken mislukt: ' + err.message);
+    } finally {
+      verbergLader();
     }
-    groepsCode = code;
-    localStorage.setItem('stadbingo_groepsCode', groepsCode);
-    gaNaarTeamkeuze();
-  } catch (err) {
-    console.error(err);
-    alert('Joinen mislukt. Controleer Authentication en database rules.');
-  } finally {
-    verbergLader();
   }
-}
 
+  async function joinGroep() {
+    if (!authKlaar) { alert('Nog even wachten, verbinding loopt nog.'); return; }
+    const code = document.getElementById('code-invoer').value.trim().toUpperCase();
+    if (code.length !== 4) { alert('Voer een geldige 4-letter code in.'); return; }
+    try {
+      toonLader('Code controleren...');
+      const snap = await db.ref('spellen/' + code).get();
+      if (!snap.exists()) { alert('Code niet gevonden.'); return; }
+      groepsCode = code;
+      localStorage.setItem('stadbingo_groepsCode', groepsCode);
+      gaNaarTeamkeuze();
+    } catch (err) {
+      console.error(err);
+      alert('Joinen mislukt: ' + err.message);
+    } finally {
+      verbergLader();
+    }
+  }
 
   function gaNaarTeamkeuze() {
-    localStorage.setItem('stadbingo_groepsCode', groepsCode);
     document.getElementById('teamkeuze-subtitel').textContent = 'Groep: ' + groepsCode;
     toonScherm('teamkeuze-scherm');
   }
 
-  // ============================================================
-  // FEATURE: TEAM KIEZEN
-  // ============================================================
   function kiesTeam(team) {
     huidigTeam = team;
-
     localStorage.setItem('stadbingo_team', team);
-    localStorage.setItem('stadbingo_groepsCode', groepsCode);
-
-db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
-  team: team,
-  laatstGezien: Date.now()
-});
-
+    if (uid) {
+      db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({ team: team, laatstGezien: Date.now() });
+    }
     const badge = document.getElementById('team-badge');
     badge.textContent = team === 'rood' ? '🔴 Team Rood' : '🔵 Team Blauw';
     badge.className   = 'team-badge ' + team;
@@ -1044,7 +954,7 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
   }
 
   // ============================================================
-  // FEATURE: KAART OPBOUWEN
+  // KAART OPBOUWEN
   // ============================================================
   function bouwKaart() {
     const grid = document.getElementById('bingo-grid');
@@ -1063,12 +973,10 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
   }
 
   // ============================================================
-  // FEATURE: FIREBASE LISTENERS
-  // Alle wijzigingen worden live gesynchroniseerd.
+  // FIREBASE LISTENERS
   // ============================================================
   function bindFirebaseListeners() {
 
-    // Vakjes: kaart bijwerken op alle telefoons
     db.ref('spellen/' + groepsCode + '/vakjes').on('value', function(snap) {
       const vakjes = snap.val() || {};
       updateKaart(vakjes);
@@ -1076,59 +984,201 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
       checkBingo(vakjes);
     });
 
-    // ============================================================
-    // FEATURE: NIEUWE MELDING ONTVANGEN → BEOORDELING POPUP
-    // Zodra het andere team bewijs instuurt detecteert Firebase
-    // dit en opent de beoordeling popup automatisch.
-    // ============================================================
     db.ref('spellen/' + groepsCode + '/meldingen').on('value', function(snap) {
       const meldingen = snap.val() || {};
       const anderTeam = huidigTeam === 'rood' ? 'blauw' : 'rood';
-
       Object.entries(meldingen).forEach(function([id, m]) {
         if (m.team === anderTeam && !gezieneMeldingen.has(id)) {
           gezieneMeldingen.add(id);
-          if (!huidigeMeldingId) {
-            openBeoordelingPopup(id, m);
-          }
+          if (!huidigeMeldingId) openBeoordelingPopup(id, m);
         }
       });
     });
 
-    // Timer: op alle telefoons gelijk starten
+    // ============================================================
+    // FEATURE: TIMER LISTENER
+    // Luistert naar timer wijzigingen inclusief pauze en stop.
+    // Past de knoppen en banner aan voor BEIDE teams.
+    // ============================================================
     db.ref('spellen/' + groepsCode + '/timer').on('value', function(snap) {
       const t = snap.val();
-      if (t && t.gestart && !spelGestart) {
+      if (!t) return;
+
+      if (t.gestart && !spelGestart) {
         spelGestart = true;
+        document.getElementById('start-knop').style.display    = 'none';
+        document.getElementById('tijd-keuze').style.display    = 'none';
+        document.getElementById('pauze-knop').style.display    = 'inline-block';
+        document.getElementById('stop-knop').style.display     = 'inline-block';
         document.getElementById('start-knop').disabled = true;
-        document.getElementById('tijd-keuze').disabled = true;
         secondenOver = Math.max(0, Math.round((t.eindtijd - Date.now()) / 1000));
         updateTimerDisplay();
+        if (!spelGepauzeerd) loopTimer();
+      }
+
+      // Pauze verwerken
+      if (t.gepauzeerd && !spelGepauzeerd) {
+        spelGepauzeerd = true;
+        clearInterval(timerInterval);
+        secondenOver = t.secondenOver || secondenOver;
+        updateTimerDisplay();
+        document.getElementById('timer-display').classList.add('gepauzeerd');
+        document.getElementById('pauze-banner').classList.add('actief');
+        document.getElementById('pauze-knop').style.display     = 'none';
+        document.getElementById('hervatten-knop').style.display = 'inline-block';
+      }
+
+      // Hervatten verwerken
+      if (!t.gepauzeerd && spelGepauzeerd) {
+        spelGepauzeerd = false;
+        secondenOver = Math.max(0, Math.round((t.eindtijd - Date.now()) / 1000));
+        document.getElementById('timer-display').classList.remove('gepauzeerd');
+        document.getElementById('pauze-banner').classList.remove('actief');
+        document.getElementById('pauze-knop').style.display     = 'inline-block';
+        document.getElementById('hervatten-knop').style.display = 'none';
         loopTimer();
       }
     });
 
-    // ============================================================
-    // FEATURE: REACTIE ONTVANGEN VAN HET BEOORDELENDE TEAM
-    // Als het andere team een reactie meestuurt bij goed/afkeuren,
-    // springt er een popup op bij het indienende team.
-    // ============================================================
     db.ref('spellen/' + groepsCode + '/reacties').on('value', function(snap) {
       const reacties = snap.val() || {};
       Object.entries(reacties).forEach(function([id, r]) {
-        // Alleen tonen als deze reactie voor ons team bedoeld is
         if (r.aanTeam === huidigTeam && !gezieneMeldingen.has('R_' + id)) {
           gezieneMeldingen.add('R_' + id);
           toonReactiePopup(id, r);
         }
       });
     });
+
+    // ============================================================
+    // FEATURE: VERZOEK LISTENER (PAUZE / STOP)
+    // Als het andere team pauze of stop vraagt, opent de popup
+    // bij dit team om het te accepteren of te weigeren.
+    // ============================================================
+    db.ref('spellen/' + groepsCode + '/verzoeken').on('value', function(snap) {
+      const verzoeken = snap.val() || {};
+      const anderTeam = huidigTeam === 'rood' ? 'blauw' : 'rood';
+      Object.entries(verzoeken).forEach(function([id, v]) {
+        if (v.vanTeam === anderTeam && v.status === 'wacht' && !gezieneMeldingen.has('V_' + id)) {
+          gezieneMeldingen.add('V_' + id);
+          openVerzoekPopup(id, v);
+        }
+      });
+    });
   }
 
   // ============================================================
-  // FEATURE: KAART WEERGAVE BIJWERKEN
-  // goedgekeurd = volledig ingekleurd
-  // wacht       = gestreept patroon in teamkleur (geblokkeerd)
+  // FEATURE: PAUZE VRAGEN
+  // Stuurt een verzoek naar het andere team om te pauzeren.
+  // Het spel pauzeert pas als het andere team akkoord gaat.
+  // ============================================================
+  async function vraagPauze() {
+    const id = 'V_' + Date.now();
+    await db.ref('spellen/' + groepsCode + '/verzoeken/' + id).set({
+      type:    'pauze',
+      vanTeam: huidigTeam,
+      status:  'wacht',
+      tijdstip: Date.now()
+    });
+    alert('Pauze verzoek verstuurd! Wacht op goedkeuring van het andere team.');
+  }
+
+  // ============================================================
+  // FEATURE: HERVATTEN VRAGEN
+  // Stuurt een verzoek naar het andere team om te hervatten.
+  // ============================================================
+  async function vraagHervatten() {
+    const id = 'V_' + Date.now();
+    await db.ref('spellen/' + groepsCode + '/verzoeken/' + id).set({
+      type:    'hervatten',
+      vanTeam: huidigTeam,
+      status:  'wacht',
+      tijdstip: Date.now()
+    });
+    alert('Hervat verzoek verstuurd! Wacht op goedkeuring van het andere team.');
+  }
+
+  // ============================================================
+  // FEATURE: STOP VRAGEN
+  // Stuurt een verzoek naar het andere team om het spel te stoppen.
+  // ============================================================
+  async function vraagStop() {
+    const id = 'V_' + Date.now();
+    await db.ref('spellen/' + groepsCode + '/verzoeken/' + id).set({
+      type:    'stop',
+      vanTeam: huidigTeam,
+      status:  'wacht',
+      tijdstip: Date.now()
+    });
+    alert('Stop verzoek verstuurd! Wacht op goedkeuring van het andere team.');
+  }
+
+  // ============================================================
+  // FEATURE: VERZOEK POPUP OPENEN
+  // Toont het verzoek van het andere team met akkoord/weiger knoppen.
+  // ============================================================
+  function openVerzoekPopup(id, v) {
+    huidigVerzoekType = { id: id, type: v.type };
+
+    const iconen = { pauze: '⏸', hervatten: '▶', stop: '⏹' };
+    const teksten = {
+      pauze:    'Team ' + (v.vanTeam === 'rood' ? 'Rood 🔴' : 'Blauw 🔵') + ' wil het spel pauzeren. Ga jij akkoord?',
+      hervatten: 'Team ' + (v.vanTeam === 'rood' ? 'Rood 🔴' : 'Blauw 🔵') + ' wil het spel hervatten. Ga jij akkoord?',
+      stop:     'Team ' + (v.vanTeam === 'rood' ? 'Rood 🔴' : 'Blauw 🔵') + ' wil het spel stoppen. Ga jij akkoord?'
+    };
+    const titels = { pauze: 'Pauze verzoek', hervatten: 'Hervatten verzoek', stop: 'Stop verzoek' };
+
+    document.getElementById('verzoek-icoon').textContent = iconen[v.type] || '❓';
+    document.getElementById('verzoek-titel').textContent = titels[v.type] || 'Verzoek';
+    document.getElementById('verzoek-tekst').textContent = teksten[v.type] || '';
+    document.getElementById('verzoek-overlay').classList.add('actief');
+  }
+
+  // ============================================================
+  // FEATURE: VERZOEK BEANTWOORDEN (AKKOORD / WEIGEREN)
+  // Bij akkoord wordt de actie uitgevoerd voor beide teams.
+  // Bij weigeren verdwijnt het verzoek zonder effect.
+  // ============================================================
+  async function beantwoordVerzoek(akkoord) {
+    document.getElementById('verzoek-overlay').classList.remove('actief');
+    if (!huidigVerzoekType) return;
+
+    const { id, type } = huidigVerzoekType;
+    huidigVerzoekType = null;
+
+    // Verzoek verwijderen uit Firebase
+    await db.ref('spellen/' + groepsCode + '/verzoeken/' + id).remove();
+
+    if (!akkoord) return; // geweigerd — niets doen
+
+    if (type === 'pauze') {
+      // Pauze uitvoeren — sla resterende seconden op in Firebase
+      await db.ref('spellen/' + groepsCode + '/timer').update({
+        gepauzeerd:   true,
+        secondenOver: secondenOver
+      });
+
+    } else if (type === 'hervatten') {
+      // Hervatten — bereken nieuwe eindtijd op basis van resterende seconden
+      const nieuweEindtijd = Date.now() + secondenOver * 1000;
+      await db.ref('spellen/' + groepsCode + '/timer').update({
+        gepauzeerd: false,
+        eindtijd:   nieuweEindtijd
+      });
+
+    } else if (type === 'stop') {
+      // Stop — timer stoppen en einde spel triggeren
+      clearInterval(timerInterval);
+      await db.ref('spellen/' + groepsCode + '/timer').update({
+        gepauzeerd: false,
+        gestopt:    true
+      });
+      toonEinde('tijd', null);
+    }
+  }
+
+  // ============================================================
+  // KAART WEERGAVE BIJWERKEN
   // ============================================================
   function updateKaart(vakjes) {
     document.querySelectorAll('.bingo-cel').forEach(function(cel) {
@@ -1146,10 +1196,11 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
   }
 
   // ============================================================
-  // FEATURE: VAKJE KLIKKEN → UPLOAD POPUP
+  // VAKJE KLIKKEN
   // ============================================================
   async function vakjeGeklikt(index) {
-    if (!spelGestart) { alert('Druk eerst op ▶ Start!'); return; }
+    if (!spelGestart)    { alert('Druk eerst op ▶ Start!'); return; }
+    if (spelGepauzeerd)  { alert('Het spel is gepauzeerd.'); return; }
     const snap = await db.ref('spellen/' + groepsCode + '/vakjes/' + index).get();
     if (snap.exists()) {
       const v = snap.val();
@@ -1191,10 +1242,7 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
   }
 
   // ============================================================
-  // FEATURE: BEWIJS VERSTUREN
-  // 1. Foto naar Firebase Storage
-  // 2. Vakje direct als 'wacht' markeren → gestreept op alle telefoons
-  // 3. Melding aanmaken → andere team krijgt automatisch de popup
+  // BEWIJS VERSTUREN
   // ============================================================
   async function stuurBewijs() {
     const opmerking = document.getElementById('upload-opmerking').value.trim();
@@ -1202,21 +1250,15 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
       alert('Voeg minimaal een foto of opmerking toe.');
       return;
     }
-
-    // Sla foto en vakje op VOOR sluitUpload — anders wordt gekozenFotoData leeggemaakt
-    const vakjeIdx  = huidigVakjeIndex;
-    const fotoData  = gekozenFotoData;   // lokale kopie bewaren
-    const opmTekst  = opmerking;
-
+    const vakjeIdx = huidigVakjeIndex;
+    const fotoData = gekozenFotoData;
+    const opmTekst = opmerking;
     sluitUpload();
     toonLader('Bewijs uploaden...');
 
-    // Vakje als 'wacht' markeren
     await db.ref('spellen/' + groepsCode + '/vakjes/' + vakjeIdx).set({
       team: huidigTeam, status: 'wacht'
     });
-
-    // Melding met foto (base64) naar database sturen
     await db.ref('spellen/' + groepsCode + '/meldingen/M_' + Date.now()).set({
       vakjeIndex: vakjeIdx,
       team:       huidigTeam,
@@ -1224,20 +1266,16 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
       opmerking:  opmTekst,
       tijdstip:   Date.now()
     });
-
     verbergLader();
   }
 
   // ============================================================
-  // FEATURE: BEOORDELING POPUP OPENEN
-  // Vult de popup met foto, challenge en opmerking.
+  // BEOORDELING POPUP
   // ============================================================
   function openBeoordelingPopup(meldingId, m) {
     huidigeMeldingId   = meldingId;
     huidigeMeldingData = m;
-
     const c = challenges[m.vakjeIndex];
-
     const header = document.getElementById('beoordeling-header');
     header.className = 'beoordeling-header ' + m.team;
     document.getElementById('beoordeling-icoon').textContent = c.icoon;
@@ -1247,7 +1285,6 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
 
     const fotoEl     = document.getElementById('beoordeling-foto');
     const geenFotoEl = document.getElementById('beoordeling-geen-foto');
-
     if (m.fotoData) {
       fotoEl.src               = m.fotoData;
       fotoEl.style.display     = 'block';
@@ -1265,22 +1302,14 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
     } else {
       opmEl.style.display = 'none';
     }
-
     document.getElementById('beoordeling-overlay').classList.add('actief');
   }
 
-  // ============================================================
-  // FEATURE: BEWIJS BEOORDELEN + REACTIE VERSTUREN
-  // Goedkeuren → vakje volledig ingekleurd, permanent geblokkeerd
-  // Afwijzen   → vakje weer vrij voor iedereen
-  // Reactie    → wordt als aparte melding naar het indienende team gestuurd
-  // ============================================================
   async function beoordeelBewijs(goedgekeurd) {
     if (!huidigeMeldingId) return;
     const id      = huidigeMeldingId;
     const data    = huidigeMeldingData;
     const reactie = document.getElementById('beoordeling-reactie').value.trim();
-
     huidigeMeldingId   = null;
     huidigeMeldingData = null;
     document.getElementById('beoordeling-overlay').classList.remove('actief');
@@ -1293,21 +1322,18 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
     } else {
       await db.ref('spellen/' + groepsCode + '/vakjes/' + data.vakjeIndex).remove();
     }
-
-    // Stuur reactie terug naar het indienende team (ook als er geen tekst is)
     await db.ref('spellen/' + groepsCode + '/reacties/R_' + Date.now()).set({
       vakjeIndex:  data.vakjeIndex,
-      aanTeam:     data.team,           // het team dat het bewijs indiende
+      aanTeam:     data.team,
       goedgekeurd: goedgekeurd,
       reactie:     reactie,
       tijdstip:    Date.now()
     });
-
     await db.ref('spellen/' + groepsCode + '/meldingen/' + id).remove();
   }
 
   // ============================================================
-  // FEATURE: SCORE, BINGO CHECK, FOTO VERGROOT
+  // SCORE EN BINGO CHECK
   // ============================================================
   function updateScore(vakjes) {
     let r = 0, b = 0;
@@ -1341,6 +1367,9 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
     lijn.forEach(i => cellen[i].classList.add('bingo-lijn'));
   }
 
+  // ============================================================
+  // FOTO VERGROOT
+  // ============================================================
   function toonFotoGroot(src) {
     document.getElementById('foto-groot').src = src;
     document.getElementById('foto-groot-overlay').classList.add('actief');
@@ -1350,32 +1379,18 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
   }
 
   // ============================================================
-  // FEATURE: REACTIE POPUP TONEN BIJ HET INDIENENDE TEAM
-  // Toont of het bewijs goed- of afgekeurd is, plus de reactie.
+  // REACTIE POPUP
   // ============================================================
   function toonReactiePopup(id, r) {
-    const challenge = challenges[r.vakjeIndex];
+    const challenge   = challenges[r.vakjeIndex];
     const goedgekeurd = r.goedgekeurd;
-
-    document.getElementById('reactie-icoon').textContent =
-      goedgekeurd ? '✅' : '❌';
-    document.getElementById('reactie-titel').textContent =
-      goedgekeurd ? 'Bewijs goedgekeurd!' : 'Bewijs afgekeurd';
-    document.getElementById('reactie-challenge').textContent =
-      challenge.icoon + ' ' + challenge.tekst;
-
+    document.getElementById('reactie-icoon').textContent     = goedgekeurd ? '✅' : '❌';
+    document.getElementById('reactie-titel').textContent     = goedgekeurd ? 'Bewijs goedgekeurd!' : 'Bewijs afgekeurd';
+    document.getElementById('reactie-challenge').textContent = challenge.icoon + ' ' + challenge.tekst;
     const tekstEl = document.getElementById('reactie-tekst');
-    if (r.reactie) {
-      tekstEl.textContent    = '"' + r.reactie + '"';
-      tekstEl.style.display  = 'block';
-    } else {
-      tekstEl.textContent    = goedgekeurd ? 'Jullie bewijs is geaccepteerd!' : 'Jullie bewijs is niet geaccepteerd. Probeer het opnieuw!';
-      tekstEl.style.display  = 'block';
-    }
-
+    tekstEl.textContent   = r.reactie || (goedgekeurd ? 'Jullie bewijs is geaccepteerd!' : 'Jullie bewijs is niet geaccepteerd. Probeer het opnieuw!');
+    tekstEl.style.display = 'block';
     document.getElementById('reactie-overlay').classList.add('actief');
-
-    // Reactie verwijderen uit Firebase na ontvangst
     db.ref('spellen/' + groepsCode + '/reacties/' + id).remove();
   }
 
@@ -1384,16 +1399,19 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
   }
 
   // ============================================================
-  // FEATURE: TIMER
+  // TIMER
   // ============================================================
   async function startTimer() {
     if (spelGestart) return;
-    const duur    = parseInt(document.getElementById('tijd-keuze').value);
+    const duur     = parseInt(document.getElementById('tijd-keuze').value);
     const eindtijd = Date.now() + duur * 1000;
-    await db.ref('spellen/' + groepsCode + '/timer').set({ gestart: true, eindtijd: eindtijd });
+    await db.ref('spellen/' + groepsCode + '/timer').set({
+      gestart: true, eindtijd: eindtijd, gepauzeerd: false, secondenOver: duur
+    });
   }
 
   function loopTimer() {
+    clearInterval(timerInterval);
     timerInterval = setInterval(function() {
       secondenOver--;
       updateTimerDisplay();
@@ -1410,7 +1428,7 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
   }
 
   // ============================================================
-  // FEATURE: EINDE SPEL
+  // EINDE SPEL
   // ============================================================
   function toonEinde(reden, winTeam) {
     clearInterval(timerInterval);
@@ -1438,31 +1456,37 @@ db.ref('spellen/' + groepsCode + '/spelers/' + uid).set({
   }
 
   // ============================================================
-  // FEATURE: HERSTARTEN
+  // HERSTARTEN
   // ============================================================
   function herstartSpel() {
-
-localStorage.removeItem('stadbingo_groepsCode');
-localStorage.removeItem('stadbingo_team');
-
     clearInterval(timerInterval);
-    spelGestart = false; huidigTeam = null; groepsCode = null;
+    localStorage.removeItem('stadbingo_groepsCode');
+    localStorage.removeItem('stadbingo_team');
+    spelGestart = false; spelGepauzeerd = false;
+    huidigTeam = null; groepsCode = null;
     huidigVakjeIndex = null; gekozenFotoData = null; bingoAlGemeld = false;
     gezieneMeldingen = new Set();
-    huidigeMeldingId = null; huidigeMeldingData = null;
+    huidigeMeldingId = null; huidigeMeldingData = null; huidigVerzoekType = null;
     document.getElementById('einde-popup').classList.remove('actief');
     document.getElementById('beoordeling-overlay').classList.remove('actief');
     document.getElementById('reactie-overlay').classList.remove('actief');
+    document.getElementById('verzoek-overlay').classList.remove('actief');
+    document.getElementById('pauze-banner').classList.remove('actief');
     document.getElementById('timer-display').classList.remove('waarschuwing');
-    document.getElementById('start-knop').disabled = false;
-    document.getElementById('tijd-keuze').disabled = false;
+    document.getElementById('timer-display').classList.remove('gepauzeerd');
+    document.getElementById('start-knop').style.display     = 'inline-block';
+    document.getElementById('start-knop').disabled          = false;
+    document.getElementById('tijd-keuze').style.display     = 'inline-block';
+    document.getElementById('pauze-knop').style.display     = 'none';
+    document.getElementById('hervatten-knop').style.display = 'none';
+    document.getElementById('stop-knop').style.display      = 'none';
     document.getElementById('code-resultaat').style.display = 'none';
     document.getElementById('code-invoer').value = '';
     selecteerOptie('nieuw');
     toonScherm('lobby-scherm');
   }
 
-zorgVoorLogin();
+  zorgVoorLogin();
 
 </script>
 </body>
