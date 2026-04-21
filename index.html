@@ -654,6 +654,26 @@
 
 </div>
 
+<!-- ============================================================
+     FEATURE: OPDRACHT UITLEG POPUP
+     Verschijnt als eerste als je een vakje aantikt.
+     Toont het icoon, de korte titel en de volledige uitleg.
+     Je kiest dan of je bewijs wil indienen of terug wil.
+============================================================ -->
+<div id="uitleg-overlay" class="overlay">
+  <div class="popup" style="text-align:center;">
+    <div style="font-size:3rem;margin-bottom:0.5rem;" id="uitleg-icoon">🎯</div>
+    <h3 id="uitleg-titel" style="margin-bottom:0.75rem;">Opdrachttitel</h3>
+    <div style="background:var(--grijs-licht);border-radius:12px;padding:1rem;font-size:0.95rem;line-height:1.6;color:var(--tekst);margin-bottom:1.25rem;text-align:left;" id="uitleg-tekst">
+      Volledige uitleg verschijnt hier.
+    </div>
+    <div class="popup-knoppen">
+      <button class="knop knop-grijs" style="flex:1" onclick="sluitUitleg()">✕ Terug</button>
+      <button class="knop knop-groen" style="flex:2" onclick="openUploadVanuitUitleg()">📷 Bewijs indienen</button>
+    </div>
+  </div>
+</div>
+
 <!-- Bewijs upload popup -->
 <div id="upload-overlay" class="overlay">
   <div class="popup">
@@ -761,31 +781,31 @@
   // CHALLENGES LIJST
   // ============================================================
   const challenges = [
-    { icoon: "🌭", tekst: "Haal een hotdog bij de IKEA en eet deze binnen één minuut op" },
-    { icoon: "🔵", tekst: "Vind een stuk Delfts blauw in de stad en maak er een foto mee" },
-    { icoon: "🍕", tekst: "Vind vijf restaurants waarvan het woord 'Pizza' in de naam staat" },
-    { icoon: "💃", tekst: "Verklaar de liefde aan een paal en doe een paaldans" },
-    { icoon: "🎭", tekst: "Geef samen met je team een korte straatperformance in de Choorstraat" },
-    { icoon: "🚢", tekst: "Ontdek een leuk feitje over Delft dat vaak door rondvaartboten wordt verteld" },
-    { icoon: "🌳", tekst: "Ga naar het Delftse Hout en geniet even van de natuur" },
-    { icoon: "🎯", tekst: "Gooi een bullseye tijdens een potje darts in een bar" },
-    { icoon: "🛒", tekst: "Vraag iemand bij de Albert Heijn of op de markt om zijn/haar ID terwijl diegene 40+ kaas koopt" },
-    { icoon: "🙏", tekst: "Doe een schietsgebedje voor de dappere dodo RIP" },
-    { icoon: "🗺️", tekst: "Doe alsof je een gids bent bij de oude jan" },
-    { icoon: "🎬", tekst: "Voeg iets aan de maatschappij toe in Delft en zet dit op film (wees creatief)" },
-    { icoon: "🏃", tekst: "Ga langs alle vier de stads uiterste van het centrum (Oostpoort, Huszar, de molen en de plantagebrug)" },
-    { icoon: "👑", tekst: "Speel de sterfscène van Willem van Oranje na in het Prinsenhof" },
-    { icoon: "🍺", tekst: "Bestel een blaffer bij Luna's en drink hem op" },
-    { icoon: "🏠", tekst: "Zoek het kleinste huis van Delft en maak een groepsfoto van de lengtes klein naar groot" },
-    { icoon: "📸", tekst: "Maak een foto van het grote TU gebouw op de manier van de toren van Pisa (wees creatief)" },
-    { icoon: "🤗", tekst: "Geef elkaar een knuffel in het Hofje van Pauw om zo de haptonomie te initiëren" },
-    { icoon: "⛪", tekst: "Ga naar de top van de nieuwe kerk" },
-    { icoon: "😇", tekst: "Biecht een zonde uit je verleden voor de oude kerk en vraag om vergiffenis voor de nieuwe kerk" },
-    { icoon: "🏡", tekst: "Vind 'Het Haagse Hoekie' en neem een selfie voor het gebouw" },
-    { icoon: "🔤", tekst: "Ga langs een straat die begint met de letter Y" },
-    { icoon: "🍻", tekst: "Weet een gratis biertje van studenten te fixen en doe een atje met ze" },
-    { icoon: "⛲", tekst: "Spring in de fontein bij de oude jan" },
-    { icoon: "🍷", tekst: "Drink vijf soorten biertjes of wijntjes in vijf verschillende barren" },
+    { icoon: "🌭", titel: "De hotdog",         tekst: "Haal een hotdog bij de IKEA en eet deze binnen één minuut op" },
+    { icoon: "🔵", titel: "Delfts blauw",       tekst: "Vind een stuk Delfts blauw in de stad en maak er een foto mee" },
+    { icoon: "🍕", titel: "Pizza restaurants",  tekst: "Vind vijf restaurants waarvan het woord 'Pizza' in de naam staat" },
+    { icoon: "💃", titel: "De paaldans",        tekst: "Verklaar de liefde aan een paal en doe een paaldans" },
+    { icoon: "🎭", titel: "Straatperformance",  tekst: "Geef samen met je team een korte straatperformance in de Choorstraat" },
+    { icoon: "🚢", titel: "Rondvaart feitje",   tekst: "Ontdek een leuk feitje over Delft dat vaak door rondvaartboten wordt verteld" },
+    { icoon: "🌳", titel: "Delftse Hout",       tekst: "Ga naar het Delftse Hout en geniet even van de natuur" },
+    { icoon: "🎯", titel: "Bullseye darts",     tekst: "Gooi een bullseye tijdens een potje darts in een bar" },
+    { icoon: "🛒", titel: "ID check",           tekst: "Vraag iemand bij de Albert Heijn of op de markt om zijn/haar ID terwijl diegene 40+ kaas koopt" },
+    { icoon: "🙏", titel: "De dodo RIP",        tekst: "Doe een schietsgebedje voor de dappere dodo RIP" },
+    { icoon: "🗺️", titel: "De gids",           tekst: "Doe alsof je een gids bent bij de oude jan" },
+    { icoon: "🎬", titel: "Maatschappij film",  tekst: "Voeg iets aan de maatschappij toe in Delft en zet dit op film (wees creatief)" },
+    { icoon: "🏃", titel: "Stadsuiterstes",     tekst: "Ga langs alle vier de stads uiterste van het centrum (Oostpoort, Huszar, de molen en de plantagebrug)" },
+    { icoon: "👑", titel: "Willem van Oranje",  tekst: "Speel de sterfscène van Willem van Oranje na in het Prinsenhof" },
+    { icoon: "🍺", titel: "De blaffer",         tekst: "Bestel een blaffer bij Luna's en drink hem op" },
+    { icoon: "🏠", titel: "Kleinste huis",      tekst: "Zoek het kleinste huis van Delft en maak een groepsfoto van de lengtes klein naar groot" },
+    { icoon: "📸", titel: "Toren van Pisa",     tekst: "Maak een foto van het grote TU gebouw op de manier van de toren van Pisa (wees creatief)" },
+    { icoon: "🤗", titel: "Hofje van Pauw",     tekst: "Geef elkaar een knuffel in het Hofje van Pauw om zo de haptonomie te initiëren" },
+    { icoon: "⛪", titel: "Nieuwe kerk top",    tekst: "Ga naar de top van de nieuwe kerk" },
+    { icoon: "😇", titel: "Biecht & vergiffenis", tekst: "Biecht een zonde uit je verleden voor de oude kerk en vraag om vergiffenis voor de nieuwe kerk" },
+    { icoon: "🏡", titel: "Haagse Hoekie",      tekst: "Vind 'Het Haagse Hoekie' en neem een selfie voor het gebouw" },
+    { icoon: "🔤", titel: "Straat met Y",       tekst: "Ga langs een straat die begint met de letter Y" },
+    { icoon: "🍻", titel: "Gratis biertje",     tekst: "Weet een gratis biertje van studenten te fixen en doe een atje met ze" },
+    { icoon: "⛲", titel: "Fontein old jan",    tekst: "Spring in de fontein bij de oude jan" },
+    { icoon: "🍷", titel: "Vijf barren",        tekst: "Drink vijf soorten biertjes of wijntjes in vijf verschillende barren" },
   ];
 
   // ============================================================
@@ -964,7 +984,12 @@
       cel.className = 'bingo-cel' + (c.vrij ? ' vrij' : '');
       cel.dataset.index = index;
       const ic = document.createElement('div'); ic.className = 'cel-icoon'; ic.textContent = c.icoon;
-      const tx = document.createElement('div'); tx.className = 'cel-tekst'; tx.textContent = c.tekst;
+      // ============================================================
+      // FEATURE: KORTE TITEL IN VAKJE
+      // Het vakje toont alleen het icoon en de korte titel.
+      // De volledige uitleg verschijnt pas als je erop drukt.
+      // ============================================================
+      const tx = document.createElement('div'); tx.className = 'cel-tekst'; tx.textContent = c.titel || c.tekst;
       cel.appendChild(ic);
       cel.appendChild(tx);
       if (!c.vrij) cel.addEventListener('click', () => vakjeGeklikt(index));
@@ -1221,14 +1246,41 @@
       }
       return;
     }
+
+    // ============================================================
+    // FEATURE: UITLEG POPUP EERST TONEN
+    // Als je op een vrij vakje tikt, zie je eerst de volledige
+    // uitleg van de opdracht. Daarna kun je bewijs indienen.
+    // ============================================================
     huidigVakjeIndex = index;
+    const c = challenges[index];
+    document.getElementById('uitleg-icoon').textContent = c.icoon;
+    document.getElementById('uitleg-titel').textContent = c.titel || c.tekst;
+    document.getElementById('uitleg-tekst').textContent = c.tekst;
+    document.getElementById('uitleg-overlay').classList.add('actief');
+  }
+
+  // ============================================================
+  // FEATURE: UITLEG POPUP SLUITEN (TERUG KNOP)
+  // ============================================================
+  function sluitUitleg() {
+    document.getElementById('uitleg-overlay').classList.remove('actief');
+    huidigVakjeIndex = null;
+  }
+
+  // ============================================================
+  // FEATURE: VAN UITLEG NAAR UPLOAD GAAN
+  // Sluit de uitleg popup en opent de bewijs upload popup.
+  // ============================================================
+  function openUploadVanuitUitleg() {
+    document.getElementById('uitleg-overlay').classList.remove('actief');
+    const c = challenges[huidigVakjeIndex];
     gekozenFotoData  = null;
     document.getElementById('foto-preview').style.display = 'none';
     document.getElementById('foto-preview').src = '';
     document.getElementById('upload-opmerking').value = '';
     document.getElementById('foto-input').value = '';
-    document.getElementById('upload-challenge-naam').textContent =
-      challenges[index].icoon + ' ' + challenges[index].tekst;
+    document.getElementById('upload-challenge-naam').textContent = c.icoon + ' ' + (c.titel || c.tekst);
     document.getElementById('upload-overlay').classList.add('actief');
   }
 
@@ -1481,6 +1533,7 @@
     document.getElementById('beoordeling-overlay').classList.remove('actief');
     document.getElementById('reactie-overlay').classList.remove('actief');
     document.getElementById('verzoek-overlay').classList.remove('actief');
+    document.getElementById('uitleg-overlay').classList.remove('actief');
     document.getElementById('pauze-banner').classList.remove('actief');
     document.getElementById('timer-display').classList.remove('waarschuwing');
     document.getElementById('timer-display').classList.remove('gepauzeerd');
